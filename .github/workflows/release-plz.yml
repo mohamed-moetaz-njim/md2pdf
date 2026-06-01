@@ -42,7 +42,7 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
       - name: Run release-plz
         if: steps.gate.outputs.enabled == 'true'
-        uses: release-plz/action@v0
+        uses: release-plz/action@v0.5.129
         with:
           command: release-plz
         env:
