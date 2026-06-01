@@ -10,7 +10,7 @@ use clap::ValueEnum;
 
 #[derive(Copy, Clone, Debug, ValueEnum)]
 pub enum Theme {
-    /// Clean sans-serif headings with blue accents (default).
+    /// Clean serif body with blue heading accents (default).
     Default,
     /// Classic book look set in New Computer Modern.
     Book,
