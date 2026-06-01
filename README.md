@@ -1,32 +1,40 @@
 # md2pdf
 
-> Turn Markdown into polished PDFs locally — no browser, no LaTeX, no Python. One static binary, reproducible by default.
+> **Reproducible, secure documentation pipelines.** Turn Markdown into byte-identical PDFs from a single binary — no Chromium, no TeX Live, no network.
 
 [![CI](https://github.com/mohamed-moetaz-njim/md2pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/mohamed-moetaz-njim/md2pdf/actions/workflows/ci.yml)
 [![Release](https://github.com/mohamed-moetaz-njim/md2pdf/actions/workflows/release.yml/badge.svg)](https://github.com/mohamed-moetaz-njim/md2pdf/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-md2pdf renders Markdown to PDF in-process with the [Typst](https://typst.app) engine
-and ships its fonts inside the executable. The only thing you install is a single
-self-contained binary — ideal for CI, air-gapped builds and reproducible docs.
+md2pdf treats document generation as a **build step**: deterministic, hermetic and
+sandboxed. It compiles Markdown to PDF in-process with the [Typst](https://typst.app)
+engine and embeds its fonts in the executable, so the same input produces the same
+bytes on every machine — ideal for CI, air-gapped builds and supply-chain verification.
 
 ```console
-$ md2pdf README.md
-wrote README.pdf (48 kB)
+$ md2pdf handbook.md && md2pdf handbook.md && sha256sum handbook.pdf
+# identical hash every run — reproducible by construction
 ```
 
-## Why md2pdf
+### Measured against Pandoc + LaTeX (100-section doc)
 
-| | md2pdf | Pandoc + LaTeX | Typst CLI | mdBook PDF | markdown-pdf (npm) |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Single binary, no system deps | ✅ | ❌ (TeX Live) | ✅ | ⚠️ (needs Chromium) | ❌ (Node + Chromium) |
-| Reads Markdown directly | ✅ | ✅ | ❌ (Typst syntax) | ✅ | ✅ |
-| Fonts bundled (reproducible) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Remote/network off by default | ✅ | ⚠️ | ⚠️ | ❌ | ❌ |
-| Startup time | ms | seconds | ms | seconds | seconds |
-| First-class CI action | ✅ | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
+| | md2pdf | Pandoc + pdfTeX |
+|---|:---:|:---:|
+| Wall time | **0.45 s** | 1.58 s |
+| Peak memory | **84 MB** | 124 MB |
+| Reproducible bytes | **✅ yes** | ❌ no |
+| Install footprint | **47 MB binary** | 192 MB + ~1.5 GB TeX Live |
 
-See [docs/COMPARISON.md](docs/COMPARISON.md) for the full breakdown.
+Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS.md) ·
+[docs/COMPARISON.md](docs/COMPARISON.md). See real output in the
+[example gallery](examples/gallery/) (resume, invoice, API docs, whitepaper, …).
+
+## Why it matters
+
+- **Deterministic output** — same input, same bytes; PDFs become cacheable, verifiable artifacts.
+- **Secure by default** — no network, no path traversal, bounded inputs, raw HTML dropped.
+- **CI-friendly** — one pinned binary, a [GitHub Action](action.yml), millisecond cold start.
+- **No Chromium, no TeX Live** — nothing to provision, nothing to keep patched.
 
 ## Features
 
@@ -58,6 +66,9 @@ sudo apt install ./md2pdf_*_amd64.deb   # from the Releases page
 ```bash
 cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf
 ```
+
+Full [installation matrix](docs/INSTALL.md) (COPR, `.deb`, `.rpm`, tarball, Action) ·
+[60-second quickstart](docs/QUICKSTART.md).
 
 ## Usage
 
@@ -118,10 +129,22 @@ output formats are additive. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Untrusted Markdown is handled deny-by-default: no network access, no path traversal,
 bounded inputs, raw HTML dropped. See [SECURITY.md](SECURITY.md).
 
+## Documentation
+
+| | |
+|:--|:--|
+| [Quickstart](docs/QUICKSTART.md) · [Install](docs/INSTALL.md) | get running |
+| [Architecture](docs/ARCHITECTURE.md) | how the IR + renderers fit together |
+| [Security](SECURITY.md) | threat model and secure defaults |
+| [Benchmarks](docs/BENCHMARKS.md) · [Comparison](docs/COMPARISON.md) | measured numbers |
+| [Example gallery](examples/gallery/) | seven real documents |
+| [Roadmap](docs/ROADMAP.md) · [Program](docs/PROGRAM.md) · [Impact](docs/IMPACT.md) | direction & sustainability |
+
 ## Contributing
 
 Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
 [roadmap](docs/ROADMAP.md). Adding a renderer is a great first contribution.
+Maintained per [MAINTAINERS.md](MAINTAINERS.md).
 
 ## License
 
