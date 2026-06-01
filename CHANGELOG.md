@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Removed
+- The `--allow-remote` flag and `SecurityPolicy::allow_remote` field. The flag was
+  never enforced (remote resources are always denied), so it was misleading.
+
+### Security
+- Asset resolution now **fails closed** when the document root cannot be
+  canonicalised, instead of falling back to a weaker non-canonical comparison.
+
+### Documentation
+- Marked COPR, crates.io and GitHub Action install paths as planned/pending rather
+  than implying they are available today.
+- Labeled benchmark numbers as locally measured on a single machine (reproducible via
+  the harness), not CI-published or certified.
+
 ## [0.2.0] - 2026-06-01
 
 ### Added
