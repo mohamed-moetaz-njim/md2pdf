@@ -1,0 +1,78 @@
+name: md2pdf
+description: Convert Markdown to PDF with md2pdf — single binary, no LaTeX or browser.
+branding:
+  icon: file-text
+  color: blue
+
+inputs:
+  input:
+    description: Markdown file to convert.
+    required: true
+  output:
+    description: Output path. Defaults to the input with a .pdf extension.
+    required: false
+    default: ""
+  theme:
+    description: Theme (default | book).
+    required: false
+    default: default
+  paper:
+    description: Paper size (a4 | letter).
+    required: false
+    default: a4
+  toc:
+    description: Add a table of contents (true | false).
+    required: false
+    default: "false"
+  args:
+    description: Extra raw arguments passed to md2pdf.
+    required: false
+    default: ""
+  version:
+    description: Release tag to install, or "latest".
+    required: false
+    default: latest
+
+outputs:
+  output:
+    description: Path of the generated PDF.
+    value: ${{ steps.convert.outputs.output }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install md2pdf
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        repo="mohamed-moetaz-njim/md2pdf"
+        ver="${{ inputs.version }}"
+        if [ "$ver" = "latest" ]; then
+          tag="$(gh release view --repo "$repo" --json tagName --jq .tagName)"
+        else
+          tag="$ver"
+        fi
+        echo "Installing md2pdf $tag"
+        gh release download "$tag" --repo "$repo" --pattern '*_amd64.deb' --output /tmp/md2pdf.deb
+        sudo apt-get install -y /tmp/md2pdf.deb
+
+    - name: Convert
+      id: convert
+      shell: bash
+      run: |
+        set -euo pipefail
+        input='${{ inputs.input }}'
+        output='${{ inputs.output }}'
+        if [ -z "$output" ]; then
+          output="${input%.*}.pdf"
+        fi
+        toc=""
+        if [ '${{ inputs.toc }}' = 'true' ]; then toc="--toc"; fi
+        md2pdf "$input" -o "$output" \
+          --theme '${{ inputs.theme }}' \
+          --paper '${{ inputs.paper }}' \
+          $toc ${{ inputs.args }}
+        echo "output=$output" >> "$GITHUB_OUTPUT"
+        echo "Wrote $output"

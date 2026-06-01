@@ -1,0 +1,32 @@
+# Example: convert every Markdown file under docs/ to PDF and attach to a release.
+# Copy into .github/workflows/ in your project.
+name: docs-pdfs
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install md2pdf
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo mohamed-moetaz-njim/md2pdf --pattern '*_amd64.deb' --output /tmp/md2pdf.deb
+          sudo apt-get install -y /tmp/md2pdf.deb
+
+      - name: Convert all docs
+        run: |
+          mkdir -p out
+          find docs -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            md2pdf "$f" -o "out/$(basename "${f%.md}").pdf" --theme book --toc
+          done
+
+      - name: Attach PDFs to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.pdf

@@ -1,18 +1,17 @@
-[package]
-name = "md2pdf"
-version = "0.1.0"
+[workspace]
+members = ["crates/core", "crates/cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
-description = "Convert Markdown to PDF locally, with no external dependencies."
-authors = ["Mohamed Moetaz Njim <mohamedmoetaznjim@gmail.com>"]
 license = "MIT"
-readme = "README.md"
+authors = ["Mohamed Moetaz Njim <mohamedmoetaznjim@gmail.com>"]
 repository = "https://github.com/mohamed-moetaz-njim/md2pdf"
 homepage = "https://github.com/mohamed-moetaz-njim/md2pdf"
-keywords = ["markdown", "pdf", "typst", "cli", "converter"]
-categories = ["command-line-utilities", "text-processing"]
 
-[dependencies]
+[workspace.dependencies]
 anyhow = "1.0.102"
 clap = { version = "4.6.1", features = ["derive"] }
 comrak = "0.52.0"
@@ -24,32 +23,3 @@ typst-pdf = "0.14.2"
 opt-level = 3
 lto = "thin"
 strip = true
-
-# ---------------------------------------------------------------------------
-# Packaging: `cargo deb` and `cargo generate-rpm` read these tables to build
-# distro packages straight from `cargo build --release`.
-# ---------------------------------------------------------------------------
-
-[package.metadata.deb]
-section = "utils"
-priority = "optional"
-assets = [
-    ["target/release/md2pdf", "usr/bin/", "755"],
-    ["README.md", "usr/share/doc/md2pdf/README.md", "644"],
-    ["LICENSE", "usr/share/doc/md2pdf/LICENSE", "644"],
-]
-extended-description = """
-md2pdf converts Markdown files to PDF entirely on your machine. It bundles its
-fonts and a Typst rendering engine into a single binary, so there is no need for
-a headless browser, LaTeX or any other runtime dependency.
-"""
-
-[package.metadata.generate-rpm]
-assets = [
-    { source = "target/release/md2pdf", dest = "/usr/bin/md2pdf", mode = "755" },
-    { source = "README.md", dest = "/usr/share/doc/md2pdf/README.md", mode = "644" },
-    { source = "LICENSE", dest = "/usr/share/doc/md2pdf/LICENSE", mode = "644" },
-]
-
-[package.metadata.generate-rpm.requires]
-# Statically links everything it needs; no runtime dependencies.

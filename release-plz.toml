@@ -1,0 +1,20 @@
+# Configuration for release-plz (https://release-plz.dev).
+[workspace]
+# Keep one shared changelog at the repo root.
+changelog_update = true
+# Group both crates under a single version/tag.
+git_release_enable = true
+git_tag_enable = true
+pr_labels = ["release"]
+
+[changelog]
+# Conventional-commit groups → changelog sections.
+sort_commits = "oldest"
+
+[[package]]
+name = "md2pdf-core"
+publish = true
+
+[[package]]
+name = "md2pdf"
+publish = true

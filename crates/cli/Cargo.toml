@@ -1,0 +1,50 @@
+[package]
+name = "md2pdf"
+description = "Convert Markdown to PDF locally, with no external dependencies."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords = ["markdown", "pdf", "typst", "cli", "documentation"]
+categories = ["command-line-utilities", "text-processing"]
+
+[[bin]]
+name = "md2pdf"
+path = "src/main.rs"
+
+[dependencies]
+md2pdf-core = { path = "../core", version = "0.2.0" }
+anyhow.workspace = true
+clap.workspace = true
+
+# ---------------------------------------------------------------------------
+# Packaging metadata. Asset source paths are relative to this manifest; the
+# binary is auto-included by cargo-deb from the workspace target directory.
+# ---------------------------------------------------------------------------
+
+[package.metadata.deb]
+name = "md2pdf"
+section = "utils"
+priority = "optional"
+assets = [
+    ["../../target/release/md2pdf", "usr/bin/", "755"],
+    ["../../README.md", "usr/share/doc/md2pdf/README.md", "644"],
+    ["../../LICENSE", "usr/share/doc/md2pdf/LICENSE", "644"],
+]
+extended-description = """
+md2pdf converts Markdown files to PDF entirely on your machine. It bundles its
+fonts and a Typst rendering engine into a single binary, so there is no need for
+a headless browser, LaTeX or any other runtime dependency. Remote resource
+loading is disabled by default for reproducible, sandboxed builds.
+"""
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "../../target/release/md2pdf", dest = "/usr/bin/md2pdf", mode = "755" },
+    { source = "../../README.md", dest = "/usr/share/doc/md2pdf/README.md", mode = "644" },
+    { source = "../../LICENSE", dest = "/usr/share/doc/md2pdf/LICENSE", mode = "644" },
+]
