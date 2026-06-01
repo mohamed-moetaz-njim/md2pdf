@@ -1,0 +1,17 @@
+[package]
+name = "md2pdf-core"
+description = "Core library for md2pdf: a renderer-agnostic Markdown IR, parser, themes, security policy and pluggable renderers."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+comrak.workspace = true
+typst.workspace = true
+typst-as-lib.workspace = true
+typst-pdf.workspace = true
