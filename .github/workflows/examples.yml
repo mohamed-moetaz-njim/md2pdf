@@ -1,0 +1,50 @@
+name: examples
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/gallery/**"
+      - "crates/**"
+      - ".github/workflows/examples.yml"
+  pull_request:
+    paths:
+      - "examples/gallery/**"
+      - "crates/**"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  gallery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install poppler (for PNG previews)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Build the binary
+        run: cargo build -p md2pdf
+
+      - name: Regenerate the gallery
+        env:
+          MD2PDF: target/debug/md2pdf
+        run: examples/gallery/build.sh
+
+      - name: Fail if the committed PDFs are stale
+        run: |
+          # PDFs are byte-reproducible, so they must match what's committed.
+          # (PNG previews can vary by poppler version and are not gated.)
+          if ! git diff --quiet -- 'examples/gallery/*/*.pdf'; then
+            echo "::error::Gallery PDFs are out of date. Run examples/gallery/build.sh and commit."
+            git --no-pager diff --stat -- 'examples/gallery/*/*.pdf'
+            exit 1
+          fi
+
+      - name: Upload PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-pdfs
+          path: examples/gallery/**/*.pdf
