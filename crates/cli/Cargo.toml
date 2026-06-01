@@ -17,7 +17,7 @@ name = "md2pdf"
 path = "src/main.rs"
 
 [dependencies]
-md2pdf-core = { path = "../core", version = "0.2.0" }
+md2pdf-core = { path = "../core", version = "0.2.1" }
 anyhow.workspace = true
 clap.workspace = true
 
