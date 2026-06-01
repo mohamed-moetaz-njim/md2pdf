@@ -8,6 +8,7 @@
 //!   network either.
 //! * **No path traversal.** Local image paths are canonicalised and must stay
 //!   inside the document root; `../../etc/passwd` and absolute paths are denied.
+//!   If the root itself cannot be canonicalised, asset access fails closed.
 //! * **Bounded inputs.** Oversized Markdown and oversized images are rejected
 //!   rather than buffered without limit.
 //! * **Raw HTML is dropped**, never passed through to a back-end.
@@ -22,9 +23,6 @@ const DEFAULT_MAX_INPUT_BYTES: u64 = 16 * 1024 * 1024;
 pub struct SecurityPolicy {
     /// Directory that local assets must resolve within.
     pub root: PathBuf,
-    /// Allow `http(s)` resources to be referenced (still never fetched by the
-    /// PDF back-end; reserved for future network-capable back-ends).
-    pub allow_remote: bool,
     /// Maximum size of an embeddable image, in bytes.
     pub max_image_bytes: u64,
     /// Maximum size of the input Markdown, in bytes.
@@ -45,7 +43,6 @@ impl SecurityPolicy {
     pub fn strict(root: impl Into<PathBuf>) -> Self {
         Self {
             root: root.into(),
-            allow_remote: false,
             max_image_bytes: DEFAULT_MAX_IMAGE_BYTES,
             max_input_bytes: DEFAULT_MAX_INPUT_BYTES,
         }
@@ -62,15 +59,24 @@ impl SecurityPolicy {
             return AssetDecision::Deny(format!("absolute image path denied: {src}"));
         }
 
+        // Establish a canonical root first. If the root cannot be canonicalised
+        // we fail closed: without a trusted, symlink-resolved root we cannot make
+        // a sound containment decision, so we deny rather than compare against a
+        // weaker (non-canonical) path that could be bypassed via `..` or symlinks.
+        let root = match self.root.canonicalize() {
+            Ok(p) => p,
+            Err(e) => {
+                return AssetDecision::Deny(format!(
+                    "cannot establish a trusted document root ({}): {src}",
+                    e
+                ));
+            }
+        };
         let candidate = self.root.join(src);
         let canonical = match candidate.canonicalize() {
             Ok(p) => p,
             Err(_) => return AssetDecision::Deny(format!("image not found: {src}")),
         };
-        let root = self
-            .root
-            .canonicalize()
-            .unwrap_or_else(|_| self.root.clone());
         if !canonical.starts_with(&root) {
             return AssetDecision::Deny(format!(
                 "path traversal outside document root denied: {src}"

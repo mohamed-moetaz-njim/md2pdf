@@ -15,8 +15,7 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         .context("no input file given (try `md2pdf <file.md>` or `md2pdf --help`)")?;
 
     let root = super::doc_root(&input);
-    let mut security = SecurityPolicy::strict(&root);
-    security.allow_remote = args.allow_remote;
+    let security = SecurityPolicy::strict(&root);
 
     let markdown = super::read_input(&input, &security)?;
 

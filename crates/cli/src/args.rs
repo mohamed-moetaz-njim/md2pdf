@@ -79,11 +79,6 @@ pub struct ConvertArgs {
     /// Document title (default: frontmatter title, then first heading).
     #[arg(long)]
     pub title: Option<String>,
-
-    /// Allow references to remote resources (still never fetched by the PDF
-    /// back-end; off by default for reproducible, sandboxed builds).
-    #[arg(long)]
-    pub allow_remote: bool,
 }
 
 #[derive(ValueEnum, Debug, Clone, Copy)]

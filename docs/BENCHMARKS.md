@@ -1,7 +1,9 @@
 # Benchmarks
 
-Real measurements, not marketing. Everything here is reproducible with the harness
-in [`benches/`](../benches); please open a PR if your numbers differ.
+These are **local measurements from a single machine** (see Environment below), not
+CI-published or independently certified numbers. They are reproducible with the harness
+in [`benches/`](../benches) — please open a PR if your numbers differ. Treat them as
+indicative of the order of magnitude, not as universal guarantees.
 
 ## Environment
 

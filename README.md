@@ -16,7 +16,11 @@ $ md2pdf handbook.md && md2pdf handbook.md && sha256sum handbook.pdf
 # identical hash every run — reproducible by construction
 ```
 
-### Measured against Pandoc + LaTeX (100-section doc)
+### Locally measured against Pandoc + LaTeX (100-section doc)
+
+> Numbers below were measured on a single machine (AMD Ryzen 5 5600H) and are
+> reproducible with [`benches/run.sh`](benches/run.sh) — they are **not** yet
+> CI-published or independently certified. Treat them as indicative.
 
 | | md2pdf | Pandoc + pdfTeX |
 |---|:---:|:---:|
@@ -48,12 +52,13 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 
 ## Install
 
-### Fedora / RHEL (COPR)
+### Fedora / RHEL
 
 ```bash
-sudo dnf copr enable mohamed-moetaz-njim/md2pdf
-sudo dnf install md2pdf
+sudo dnf install ./md2pdf-*.x86_64.rpm   # from the Releases page
 ```
+
+> A COPR repository (`dnf copr enable …`) is **planned but not yet available**.
 
 ### Debian / Ubuntu
 
@@ -67,7 +72,7 @@ sudo apt install ./md2pdf_*_amd64.deb   # from the Releases page
 cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf
 ```
 
-Full [installation matrix](docs/INSTALL.md) (COPR, `.deb`, `.rpm`, tarball, Action) ·
+Full [installation matrix](docs/INSTALL.md) (`.deb`, `.rpm`, tarball, Action; COPR planned) ·
 [60-second quickstart](docs/QUICKSTART.md).
 
 ## Usage
@@ -87,7 +92,6 @@ Convert options:
       --paper <PAPER>    a4 | letter
       --toc              Add a table of contents
       --title <TITLE>    Override the document title
-      --allow-remote     Permit references to remote resources (off by default)
 ```
 
 ### Examples

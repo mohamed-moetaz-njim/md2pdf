@@ -109,6 +109,17 @@ mod tests {
     }
 
     #[test]
+    fn security_fails_closed_when_root_cannot_be_canonicalized() {
+        // A non-existent root cannot be canonicalised; asset access must deny
+        // rather than fall back to a weaker comparison.
+        let policy = SecurityPolicy::strict("/no/such/root/md2pdf-test");
+        assert!(matches!(
+            policy.resolve_image("logo.png"),
+            security::AssetDecision::Deny(_)
+        ));
+    }
+
+    #[test]
     fn typst_source_render_is_deterministic() {
         let md = "# Title\n\nHello **world**.";
         let a = convert(md, &opts("."), OutputFormat::Typst).unwrap();

@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-01
+
+A trustworthiness/maintenance release. No features, no architecture or benchmark
+changes — only audit remediation.
+
+### Security
+- Asset resolution now **fails closed** when the document root cannot be
+  canonicalised, instead of falling back to a weaker non-canonical comparison.
+
+### Removed
+- The `--allow-remote` flag and `SecurityPolicy::allow_remote` field. The flag was
+  never enforced (remote resources are always denied), so it was misleading.
+
+### Documentation
+- Marked COPR, crates.io and GitHub Action install paths as planned/pending rather
+  than implying they are available today.
+- Labeled benchmark numbers as locally measured on a single machine (reproducible via
+  the harness), not CI-published or certified.
+
+### CI
+- `release-plz` is now inert unless a crates.io token is configured, preventing a
+  failing release run on the first push to `main`.
+
 ## [0.2.0] - 2026-06-01
 
 ### Added
@@ -32,6 +55,7 @@ All notable changes to this project are documented here. The format is based on
 - `default` and `book` themes, `--toc`, `--paper`.
 - `.deb`/`.rpm` packaging and GitHub Releases workflow.
 
-[Unreleased]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mohamed-moetaz-njim/md2pdf/releases/tag/v0.1.0
