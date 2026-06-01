@@ -20,8 +20,8 @@ a hostile reference cannot break a pipeline but also cannot smuggle content in.
 
 ## Secure defaults
 
-- Network access: **off**. (`--allow-remote` only marks references as permitted for
-  future network-capable back-ends; the PDF back-end still never fetches.)
+- Network access: **off**, unconditionally. The renderer has no code path that
+  fetches remote resources, and the Typst engine is built without network features.
 - Run `md2pdf validate <file>` to see exactly which assets would be denied and why.
 
 ## Supported versions

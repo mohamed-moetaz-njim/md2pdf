@@ -4,18 +4,19 @@ md2pdf is a single self-contained binary. Pick the row that matches your platfor
 
 ## Installation matrix
 
-| Platform | Method | Command |
-|:---------|:-------|:--------|
-| Fedora / RHEL | COPR | `sudo dnf copr enable mohamed-moetaz-njim/md2pdf && sudo dnf install md2pdf` |
-| Fedora / RHEL | `.rpm` | `sudo dnf install ./md2pdf-*.x86_64.rpm` |
-| Debian / Ubuntu | `.deb` | `sudo apt install ./md2pdf_*_amd64.deb` |
-| Any Linux | tarball | download `md2pdf-*-x86_64-linux.tar.gz`, put `md2pdf` on `$PATH` |
-| Any (Rust) | crates.io | `cargo install md2pdf` |
-| Any (Rust) | from git | `cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf` |
-| CI (GitHub Actions) | Action | `uses: mohamed-moetaz-njim/md2pdf@v0` |
+| Platform | Method | Command | Status |
+|:---------|:-------|:--------|:-------|
+| Fedora / RHEL | `.rpm` | `sudo dnf install ./md2pdf-*.x86_64.rpm` | ✅ via Releases |
+| Debian / Ubuntu | `.deb` | `sudo apt install ./md2pdf_*_amd64.deb` | ✅ via Releases |
+| Any Linux | tarball | download `md2pdf-*-x86_64-linux.tar.gz`, put `md2pdf` on `$PATH` | ✅ via Releases |
+| Any (Rust) | from git | `cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf` | ✅ available |
+| Any (Rust) | crates.io | `cargo install md2pdf` | ⏳ after first crates.io publish |
+| CI (GitHub Actions) | Action | `uses: mohamed-moetaz-njim/md2pdf@v0` | ⏳ after a `v0` tag is published |
+| Fedora / RHEL | COPR | `sudo dnf copr enable mohamed-moetaz-njim/md2pdf && sudo dnf install md2pdf` | 🚧 planned, not yet available |
 
-`.deb`, `.rpm` and tarballs are attached to every
-[GitHub Release](https://github.com/mohamed-moetaz-njim/md2pdf/releases).
+`.deb`, `.rpm` and tarballs are attached to each
+[GitHub Release](https://github.com/mohamed-moetaz-njim/md2pdf/releases). Rows marked
+⏳/🚧 are not usable yet — see [docs/PROGRAM.md](PROGRAM.md) for the activation steps.
 
 ## Verify
 
@@ -38,6 +39,6 @@ cargo build --release -p md2pdf
 
 ## Uninstall
 
-- COPR/dnf: `sudo dnf remove md2pdf`
+- rpm/dnf: `sudo dnf remove md2pdf`
 - apt: `sudo apt remove md2pdf`
 - cargo: `cargo uninstall md2pdf`

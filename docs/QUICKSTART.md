@@ -5,7 +5,9 @@ From zero to a reproducible PDF in about a minute.
 ## 1. Install
 
 ```bash
-cargo install md2pdf        # or a .deb/.rpm — see docs/INSTALL.md
+# a .deb / .rpm / tarball from the Releases page, or from source:
+cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf
+# (`cargo install md2pdf` from crates.io is planned — see docs/INSTALL.md)
 ```
 
 ## 2. Convert
