@@ -67,9 +67,14 @@ impl SecurityPolicy {
             Ok(p) => p,
             Err(_) => return AssetDecision::Deny(format!("image not found: {src}")),
         };
-        let root = self.root.canonicalize().unwrap_or_else(|_| self.root.clone());
+        let root = self
+            .root
+            .canonicalize()
+            .unwrap_or_else(|_| self.root.clone());
         if !canonical.starts_with(&root) {
-            return AssetDecision::Deny(format!("path traversal outside document root denied: {src}"));
+            return AssetDecision::Deny(format!(
+                "path traversal outside document root denied: {src}"
+            ));
         }
         match std::fs::metadata(&canonical) {
             Ok(m) if m.len() > self.max_image_bytes => AssetDecision::Deny(format!(

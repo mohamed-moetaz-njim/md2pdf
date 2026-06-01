@@ -50,6 +50,10 @@ pub fn run(args: ConvertArgs) -> Result<()> {
     for d in &rendered.diagnostics {
         eprintln!("warning: {}", d.message);
     }
-    eprintln!("wrote {} ({} bytes)", output.display(), rendered.bytes.len());
+    eprintln!(
+        "wrote {} ({} bytes)",
+        output.display(),
+        rendered.bytes.len()
+    );
     Ok(())
 }

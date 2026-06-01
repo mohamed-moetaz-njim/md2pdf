@@ -12,7 +12,7 @@ use typst_as_lib::TypstEngine;
 use typst_as_lib::typst_kit_options::TypstKitFontOptions;
 
 use crate::ir::Document;
-use crate::render::{Diagnostic, OutputFormat, Rendered, Renderer, RenderOptions};
+use crate::render::{Diagnostic, OutputFormat, RenderOptions, Rendered, Renderer};
 
 pub use lower::lower;
 

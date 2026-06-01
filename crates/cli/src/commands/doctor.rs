@@ -7,7 +7,11 @@ use md2pdf_core::{Paper, RenderOptions, SecurityPolicy, Theme};
 pub fn run() -> Result<()> {
     println!("md2pdf {}", env!("CARGO_PKG_VERSION"));
     println!("engine:   {}", md2pdf_core::ENGINE_VERSION);
-    println!("platform: {} / {}", std::env::consts::OS, std::env::consts::ARCH);
+    println!(
+        "platform: {} / {}",
+        std::env::consts::OS,
+        std::env::consts::ARCH
+    );
     println!("fonts:    embedded (Libertinus Serif, New Computer Modern, DejaVu Sans Mono)");
 
     let root = std::env::current_dir()?;
@@ -26,7 +30,10 @@ pub fn run() -> Result<()> {
         OutputFormat::Pdf,
     ) {
         Ok(r) => {
-            println!("ok ({} byte PDF produced, embedded fonts loaded)", r.bytes.len());
+            println!(
+                "ok ({} byte PDF produced, embedded fonts loaded)",
+                r.bytes.len()
+            );
             Ok(())
         }
         Err(e) => {

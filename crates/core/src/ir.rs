@@ -37,13 +37,22 @@ pub enum Align {
 /// Block-level content.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Block {
-    Heading { level: u8, content: Vec<Inline> },
+    Heading {
+        level: u8,
+        content: Vec<Inline>,
+    },
     Paragraph(Vec<Inline>),
     /// A fenced/indented code block. `lang` drives syntax highlighting; the
     /// reserved language `mermaid` is recognised by renderers that support it.
-    CodeBlock { lang: Option<String>, code: String },
+    CodeBlock {
+        lang: Option<String>,
+        code: String,
+    },
     BlockQuote(Vec<Block>),
-    List { ordered: bool, items: Vec<ListItem> },
+    List {
+        ordered: bool,
+        items: Vec<ListItem>,
+    },
     Table {
         align: Vec<Align>,
         head: Vec<Vec<Inline>>,
@@ -70,8 +79,14 @@ pub enum Inline {
     Strikethrough(Vec<Inline>),
     Superscript(Vec<Inline>),
     Code(String),
-    Link { href: String, content: Vec<Inline> },
-    Image { src: String, alt: String },
+    Link {
+        href: String,
+        content: Vec<Inline>,
+    },
+    Image {
+        src: String,
+        alt: String,
+    },
     /// A footnote whose definition has been resolved and inlined.
     Footnote(Vec<Block>),
     SoftBreak,

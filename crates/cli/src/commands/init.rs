@@ -11,7 +11,8 @@ const WORKFLOW_YML: &str = "name: docs\n\non:\n  push:\n    branches: [main]\n\n
 pub fn run(dir: &Path) -> Result<()> {
     let docs = dir.join("docs");
     let workflows = dir.join(".github/workflows");
-    std::fs::create_dir_all(&docs).with_context(|| format!("could not create {}", docs.display()))?;
+    std::fs::create_dir_all(&docs)
+        .with_context(|| format!("could not create {}", docs.display()))?;
     std::fs::create_dir_all(&workflows)
         .with_context(|| format!("could not create {}", workflows.display()))?;
 
@@ -30,7 +31,8 @@ fn write_if_absent(path: &Path, contents: &str) -> Result<()> {
         println!("  skipped {} (already exists)", path.display());
         return Ok(());
     }
-    std::fs::write(path, contents).with_context(|| format!("could not write {}", path.display()))?;
+    std::fs::write(path, contents)
+        .with_context(|| format!("could not write {}", path.display()))?;
     println!("  created {}", path.display());
     Ok(())
 }

@@ -17,7 +17,7 @@ pub mod security;
 pub mod theme;
 
 pub use ir::Document;
-pub use render::{Diagnostic, OutputFormat, Paper, Rendered, RenderOptions, Renderer};
+pub use render::{Diagnostic, OutputFormat, Paper, RenderOptions, Rendered, Renderer};
 pub use security::SecurityPolicy;
 pub use theme::Theme;
 
@@ -56,8 +56,14 @@ mod tests {
         let doc = parser::parse(md);
         assert_eq!(doc.meta.title.as_deref(), Some("My Doc"));
         assert_eq!(doc.meta.author.as_deref(), Some("Ada"));
-        assert_eq!(doc.meta.extra.get("custom").map(String::as_str), Some("yes"));
-        assert!(matches!(doc.blocks.first(), Some(Block::Heading { level: 1, .. })));
+        assert_eq!(
+            doc.meta.extra.get("custom").map(String::as_str),
+            Some("yes")
+        );
+        assert!(matches!(
+            doc.blocks.first(),
+            Some(Block::Heading { level: 1, .. })
+        ));
     }
 
     #[test]

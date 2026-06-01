@@ -19,7 +19,10 @@ pub fn parse(input: &str) -> Document {
     let root = parse_document(&arena, body, &options());
 
     let footnotes = collect_footnotes(root);
-    let blocks = root.children().filter_map(|n| block(n, &footnotes)).collect();
+    let blocks = root
+        .children()
+        .filter_map(|n| block(n, &footnotes))
+        .collect();
 
     Document { meta, blocks }
 }
@@ -42,7 +45,9 @@ fn options() -> Options<'static> {
 fn split_frontmatter(input: &str) -> (Meta, &str) {
     let mut meta = Meta::default();
     let trimmed = input.strip_prefix('\u{feff}').unwrap_or(input);
-    let Some(rest) = trimmed.strip_prefix("---\n").or_else(|| trimmed.strip_prefix("---\r\n"))
+    let Some(rest) = trimmed
+        .strip_prefix("---\n")
+        .or_else(|| trimmed.strip_prefix("---\r\n"))
     else {
         return (meta, input);
     };
@@ -140,8 +145,7 @@ fn block<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Option<Block> {
         // any other container we don't model explicitly.
         NodeValue::FootnoteDefinition(_) => None,
         _ => {
-            let mut children: Vec<Block> =
-                node.children().filter_map(|n| block(n, fns)).collect();
+            let mut children: Vec<Block> = node.children().filter_map(|n| block(n, fns)).collect();
             match children.len() {
                 0 => None,
                 1 => children.pop(),

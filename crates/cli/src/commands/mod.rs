@@ -13,8 +13,8 @@ use md2pdf_core::SecurityPolicy;
 
 /// Read an input file, enforcing the policy's input-size cap.
 pub(crate) fn read_input(path: &Path, policy: &SecurityPolicy) -> Result<String> {
-    let meta = std::fs::metadata(path)
-        .with_context(|| format!("could not open {}", path.display()))?;
+    let meta =
+        std::fs::metadata(path).with_context(|| format!("could not open {}", path.display()))?;
     if meta.len() > policy.max_input_bytes {
         anyhow::bail!(
             "{} is {} bytes, over the {} byte limit",

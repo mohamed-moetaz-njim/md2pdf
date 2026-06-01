@@ -36,48 +36,61 @@ struct Ctx<'a> {
 }
 
 fn preamble(s: &mut String, spec: &ThemeSpec, opts: &RenderOptions) {
-    let _ = write!(
+    let _ = writeln!(
         s,
-        "#set page(paper: \"{}\", margin: (x: {}cm, y: {}cm), numbering: \"1\")\n",
+        "#set page(paper: \"{}\", margin: (x: {}cm, y: {}cm), numbering: \"1\")",
         opts.paper.typst_name(),
         spec.margin_x_cm,
         spec.margin_y_cm
     );
-    let _ = write!(
+    let _ = writeln!(
         s,
-        "#set text(font: \"{}\", size: {}pt, lang: \"en\")\n",
+        "#set text(font: \"{}\", size: {}pt, lang: \"en\")",
         spec.body_font, spec.body_size_pt
     );
-    let _ = write!(
+    let _ = writeln!(
         s,
-        "#set par(justify: {}, leading: 0.65em, first-line-indent: {}em)\n",
+        "#set par(justify: {}, leading: 0.65em, first-line-indent: {}em)",
         spec.justify, spec.first_line_indent_em
     );
-    let _ = write!(s, "#show heading: set text(fill: rgb(\"{}\"))\n", spec.heading_color);
+    let _ = writeln!(
+        s,
+        "#show heading: set text(fill: rgb(\"{}\"))",
+        spec.heading_color
+    );
     s.push_str("#show heading.where(level: 1): set text(size: 1.5em)\n");
-    let _ = write!(s, "#show link: set text(fill: rgb(\"{}\"))\n", spec.link_color);
-    let _ = write!(s, "#show raw: set text(font: \"{}\", size: 9.5pt)\n", spec.mono_font);
+    let _ = writeln!(
+        s,
+        "#show link: set text(fill: rgb(\"{}\"))",
+        spec.link_color
+    );
+    let _ = writeln!(
+        s,
+        "#show raw: set text(font: \"{}\", size: 9.5pt)",
+        spec.mono_font
+    );
     match spec.code_stroke {
         Some(stroke) => {
-            let _ = write!(
+            let _ = writeln!(
                 s,
-                "#show raw.where(block: true): block.with(fill: rgb(\"{}\"), inset: 10pt, radius: 4pt, width: 100%, stroke: 0.5pt + rgb(\"{}\"))\n",
+                "#show raw.where(block: true): block.with(fill: rgb(\"{}\"), inset: 10pt, radius: 4pt, width: 100%, stroke: 0.5pt + rgb(\"{}\"))",
                 spec.code_fill, stroke
             );
         }
         None => {
-            let _ = write!(
+            let _ = writeln!(
                 s,
-                "#show raw.where(block: true): block.with(fill: rgb(\"{}\"), inset: 10pt, radius: 2pt, width: 100%)\n",
+                "#show raw.where(block: true): block.with(fill: rgb(\"{}\"), inset: 10pt, radius: 2pt, width: 100%)",
                 spec.code_fill
             );
         }
     }
-    let _ = write!(
+    let _ = writeln!(
         s,
-        "#show quote.where(block: true): set block(stroke: (left: 2pt + rgb(\"{}\")), inset: (left: 1em, y: 0.4em))\n\n",
+        "#show quote.where(block: true): set block(stroke: (left: 2pt + rgb(\"{}\")), inset: (left: 1em, y: 0.4em))",
         spec.accent_color
     );
+    s.push('\n');
 }
 
 fn title_block(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOptions) {
@@ -88,14 +101,14 @@ fn title_block(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOp
         return;
     }
     s.push_str("#align(center)[\n");
-    let _ = write!(
+    let _ = writeln!(
         s,
-        "  #text(size: 22pt, weight: \"bold\", fill: rgb(\"{}\"))[#\"{}\"]\n",
+        "  #text(size: 22pt, weight: \"bold\", fill: rgb(\"{}\"))[#\"{}\"]",
         spec.accent_color,
         esc(&title)
     );
     if let Some(sub) = &doc.meta.subtitle {
-        let _ = write!(s, "  #v(0.2em)\n  #text(size: 13pt)[#\"{}\"]\n", esc(sub));
+        let _ = writeln!(s, "  #v(0.2em)\n  #text(size: 13pt)[#\"{}\"]", esc(sub));
     }
     let byline: Vec<String> = [doc.meta.author.as_deref(), doc.meta.date.as_deref()]
         .into_iter()
@@ -103,14 +116,18 @@ fn title_block(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOp
         .map(esc)
         .collect();
     if !byline.is_empty() {
-        let _ = write!(
+        let _ = writeln!(
             s,
-            "  #v(0.3em)\n  #text(size: 10pt, fill: luma(90))[#\"{}\"]\n",
+            "  #v(0.3em)\n  #text(size: 10pt, fill: luma(90))[#\"{}\"]",
             byline.join(" — ")
         );
     }
     s.push_str("  #v(0.3em)\n");
-    let _ = write!(s, "  #line(length: 38%, stroke: 0.6pt + rgb(\"{}\"))\n", spec.accent_color);
+    let _ = writeln!(
+        s,
+        "  #line(length: 38%, stroke: 0.6pt + rgb(\"{}\"))",
+        spec.accent_color
+    );
     s.push_str("]\n#v(1.4em)\n\n");
 }
 
@@ -140,8 +157,9 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
         }
         Block::RawHtml(_) => {
             // Dropped by policy; record it once so `validate` can report it.
-            ctx.diags
-                .push(Diagnostic::new("raw HTML block dropped (disabled for safety)"));
+            ctx.diags.push(Diagnostic::new(
+                "raw HTML block dropped (disabled for safety)",
+            ));
         }
     }
 }
@@ -150,8 +168,9 @@ fn emit_code(lang: Option<&str>, code: &str, s: &mut String, ctx: &mut Ctx) {
     if lang == Some("mermaid") {
         // Real diagram rendering is on the roadmap; for now we preserve the
         // source verbatim and flag it rather than silently dropping it.
-        ctx.diags
-            .push(Diagnostic::new("mermaid diagram rendered as source (diagram support is planned)"));
+        ctx.diags.push(Diagnostic::new(
+            "mermaid diagram rendered as source (diagram support is planned)",
+        ));
     }
     s.push_str("#raw(block: true");
     if let Some(lang) = lang {
@@ -196,7 +215,7 @@ fn emit_table(
         .max(align.len())
         .max(1);
     s.push_str("#table(\n");
-    let _ = write!(s, "  columns: {columns},\n");
+    let _ = writeln!(s, "  columns: {columns},");
     s.push_str("  align: (");
     for i in 0..columns {
         let a = align.get(i).copied().unwrap_or(Align::None);
