@@ -1,0 +1,22 @@
+# Example: export this repo's README to a PDF on every push.
+# Copy into .github/workflows/ in your project.
+name: readme-pdf
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mohamed-moetaz-njim/md2pdf@v0
+        with:
+          input: README.md
+          output: README.pdf
+          toc: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: readme-pdf
+          path: README.pdf
