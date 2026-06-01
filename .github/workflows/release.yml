@@ -30,10 +30,16 @@ jobs:
           cargo deb --no-build -p md2pdf
           cargo generate-rpm -p crates/cli
 
-      - name: Upload packages to the release
+      - name: Build tarball
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          tar -C target/release -czf "md2pdf-${v}-x86_64-linux.tar.gz" md2pdf
+
+      - name: Upload artifacts to the release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             target/debian/*.deb
             target/generate-rpm/*.rpm
+            md2pdf-*-x86_64-linux.tar.gz
           generate_release_notes: true

@@ -1,0 +1,42 @@
+# Benchmark tracking. Runs the harness on a schedule and on changes that could
+# affect performance, and uploads the report so regressions are visible over time.
+name: bench
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "crates/**"
+      - "benches/**"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install comparators (best effort)
+        run: |
+          cargo install hyperfine || true
+          sudo apt-get update && sudo apt-get install -y pandoc || true
+
+      - name: Build release binary
+        run: cargo build --release -p md2pdf
+
+      - name: Run benchmarks
+        run: |
+          mkdir -p bench-out
+          benches/run.sh 200 | tee bench-out/report.txt
+
+      - name: Upload benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: bench-out/report.txt
