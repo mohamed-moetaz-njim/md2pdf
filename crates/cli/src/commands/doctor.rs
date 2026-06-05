@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use md2pdf_core::render::OutputFormat;
-use md2pdf_core::{Paper, RenderOptions, SecurityPolicy, Theme};
+use md2pdf_core::{Config, Paper, RenderOptions, SecurityPolicy, Theme};
 
 pub fn run() -> Result<()> {
     println!("md2pdf {}", env!("CARGO_PKG_VERSION"));
@@ -15,6 +15,27 @@ pub fn run() -> Result<()> {
     println!("fonts:    embedded (Libertinus Serif, New Computer Modern, DejaVu Sans Mono)");
 
     let root = std::env::current_dir()?;
+    match Config::load_from(&root) {
+        Some(Ok(cfg)) => {
+            let theme = cfg
+                .document
+                .as_ref()
+                .and_then(|d| d.theme.as_deref())
+                .unwrap_or("default");
+            let paper = cfg
+                .document
+                .as_ref()
+                .and_then(|d| d.paper.as_deref())
+                .unwrap_or("a4");
+            println!("config:   md2pdf.toml found (theme: {theme}, paper: {paper})");
+        }
+        Some(Err(e)) => {
+            println!("config:   md2pdf.toml found but invalid: {e}");
+        }
+        None => {
+            println!("config:   no md2pdf.toml (using defaults)");
+        }
+    }
     let opts = RenderOptions {
         theme: Theme::Default,
         paper: Paper::A4,

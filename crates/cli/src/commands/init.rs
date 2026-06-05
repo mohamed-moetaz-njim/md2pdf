@@ -3,6 +3,7 @@
 use std::path::Path;
 
 use anyhow::{Context, Result};
+use md2pdf_core::Config;
 
 const EXAMPLE_MD: &str = "---\ntitle: Project Documentation\nauthor: Your Name\ndate: 2026\n---\n\n# Introduction\n\nWrite your documentation in Markdown and run `md2pdf docs/example.md` to get a\nPDF. Tables, code blocks, task lists and footnotes all work out of the box.\n\n## Next steps\n\n- [ ] Replace this with your content\n- [ ] Push and let the workflow build the PDF on every release\n";
 
@@ -16,10 +17,12 @@ pub fn run(dir: &Path) -> Result<()> {
     std::fs::create_dir_all(&workflows)
         .with_context(|| format!("could not create {}", workflows.display()))?;
 
+    write_if_absent(&dir.join("md2pdf.toml"), Config::sample())?;
     write_if_absent(&docs.join("example.md"), EXAMPLE_MD)?;
     write_if_absent(&workflows.join("docs.yml"), WORKFLOW_YML)?;
 
     println!("Scaffolded a documentation project in {}", dir.display());
+    println!("  md2pdf.toml                project configuration");
     println!("  docs/example.md            sample document");
     println!("  .github/workflows/docs.yml build the PDF in CI");
     println!("\nTry it now:  md2pdf docs/example.md");

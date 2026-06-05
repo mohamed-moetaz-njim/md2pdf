@@ -10,12 +10,14 @@
 //! * [`render`] back-ends depend only on the [`ir`], never on the parser.
 //! * [`security`] enforces deny-by-default handling of external assets.
 
+pub mod config;
 pub mod ir;
 pub mod parser;
 pub mod render;
 pub mod security;
 pub mod theme;
 
+pub use config::Config;
 pub use ir::Document;
 pub use render::{Diagnostic, OutputFormat, Paper, RenderOptions, Rendered, Renderer};
 pub use security::SecurityPolicy;

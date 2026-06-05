@@ -64,13 +64,13 @@ pub struct ConvertArgs {
     #[arg(long, value_enum)]
     pub format: Option<FormatArg>,
 
-    /// Visual theme.
-    #[arg(long, value_enum, default_value_t = ThemeArg::Default)]
-    pub theme: ThemeArg,
+    /// Visual theme (default: "default").
+    #[arg(long, value_enum)]
+    pub theme: Option<ThemeArg>,
 
-    /// Paper size.
-    #[arg(long, value_enum, default_value_t = PaperArg::A4)]
-    pub paper: PaperArg,
+    /// Paper size (default: "a4").
+    #[arg(long, value_enum)]
+    pub paper: Option<PaperArg>,
 
     /// Add a table of contents built from the headings.
     #[arg(long)]
@@ -79,6 +79,10 @@ pub struct ConvertArgs {
     /// Document title (default: frontmatter title, then first heading).
     #[arg(long)]
     pub title: Option<String>,
+
+    /// Path to an md2pdf.toml config file.
+    #[arg(long)]
+    pub config: Option<PathBuf>,
 }
 
 #[derive(ValueEnum, Debug, Clone, Copy)]
