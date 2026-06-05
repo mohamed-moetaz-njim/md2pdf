@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-06-05
+
+### Added
+- `md2pdf.toml` config file support with `[document]`, `[security]` and `[layout]`
+  sections. Config auto-loads from the document root or via `--config <PATH>`.
+- `serde` and `toml` dependencies enabling future TOML-based features (themes,
+  header/footer configuration).
+- `--config <PATH>` flag for explicit config path.
+- `md2pdf init` now emits a sample `md2pdf.toml`.
+- `md2pdf doctor` reports whether a config file was found.
+- 10 unit tests for config parsing, merge precedence, validation and round-trip.
+
+### Changed
+- `--theme` and `--paper` CLI flags are now optional, allowing config file
+  defaults to take effect when the flags are omitted.
+- Precedence for all document options: CLI flags > config file > built-in defaults.
+
 ## [0.2.1] - 2026-06-01
 
 A trustworthiness/maintenance release. No features, no architecture or benchmark
@@ -55,7 +72,8 @@ changes — only audit remediation.
 - `default` and `book` themes, `--toc`, `--paper`.
 - `.deb`/`.rpm` packaging and GitHub Releases workflow.
 
-[Unreleased]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/mohamed-moetaz-njim/md2pdf/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mohamed-moetaz-njim/md2pdf/releases/tag/v0.1.0
