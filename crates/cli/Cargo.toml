@@ -21,6 +21,11 @@ md2pdf-core = { path = "../core", version = "0.2.1" }
 anyhow.workspace = true
 clap.workspace = true
 
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+
 # ---------------------------------------------------------------------------
 # Packaging metadata. Asset source paths are relative to this manifest; the
 # binary is auto-included by cargo-deb from the workspace target directory.
