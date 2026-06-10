@@ -22,7 +22,7 @@ typst-pdf.workspace = true
 
 [dev-dependencies]
 proptest = "1"
-criterion = "0.5"
+criterion = "0.8"
 zip = "8.6.0"
 
 [[bench]]
