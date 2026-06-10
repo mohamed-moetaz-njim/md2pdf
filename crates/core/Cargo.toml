@@ -21,3 +21,8 @@ typst-pdf.workspace = true
 
 [dev-dependencies]
 proptest = "1"
+criterion = "0.5"
+
+[[bench]]
+name = "pipeline"
+harness = false
