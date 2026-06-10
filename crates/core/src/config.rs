@@ -71,10 +71,10 @@ impl Config {
     /// leave the existing value intact. Call this before applying CLI flags.
     pub fn apply_to_render_options(&self, opts: &mut RenderOptions) {
         if let Some(doc) = &self.document {
-            if let Some(theme) = &doc.theme {
-                if let Some(t) = Theme::from_name(theme) {
-                    opts.theme = t;
-                }
+            if let Some(theme) = &doc.theme
+                && let Some(t) = Theme::from_name(theme)
+            {
+                opts.theme = t;
             }
             if let Some(paper) = &doc.paper {
                 opts.paper = Paper::from_name(paper).unwrap_or(opts.paper);
@@ -115,17 +115,18 @@ impl Config {
     /// Validate the config, returning an error for invalid values.
     pub fn validate(&self) -> anyhow::Result<()> {
         if let Some(doc) = &self.document {
-            if let Some(theme) = &doc.theme {
-                // Custom themes are file paths, resolved (and validated)
-                // against the document root by the CLI.
-                if Theme::from_name(theme).is_none() && !theme.ends_with(".toml") {
-                    anyhow::bail!("unknown theme: {theme}");
-                }
+            // Custom themes are file paths, resolved (and validated)
+            // against the document root by the CLI.
+            if let Some(theme) = &doc.theme
+                && Theme::from_name(theme).is_none()
+                && !theme.ends_with(".toml")
+            {
+                anyhow::bail!("unknown theme: {theme}");
             }
-            if let Some(paper) = &doc.paper {
-                if Paper::from_name(paper).is_none() {
-                    anyhow::bail!("unknown paper size: {paper}");
-                }
+            if let Some(paper) = &doc.paper
+                && Paper::from_name(paper).is_none()
+            {
+                anyhow::bail!("unknown paper size: {paper}");
             }
         }
         Ok(())

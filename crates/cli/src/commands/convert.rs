@@ -66,10 +66,10 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         .as_ref()
         .and_then(|c| c.document.as_ref())
         .and_then(|d| d.theme.as_deref())
+        && Theme::from_name(name).is_none()
+        && name.ends_with(".toml")
     {
-        if Theme::from_name(name).is_none() && name.ends_with(".toml") {
-            opts.theme = resolve_theme(name, &root)?;
-        }
+        opts.theme = resolve_theme(name, &root)?;
     }
 
     // Layer 3: CLI flags (highest priority).
