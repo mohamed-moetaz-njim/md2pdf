@@ -47,7 +47,7 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 - 📄 **Page furniture** — `--header`/`--footer` with `{title}`/`{author}`/`{date}` placeholders, page numbers
 - 🧾 **Frontmatter** — `title`, `author`, `date`, `subtitle` and arbitrary metadata
 - 🎨 **Themes** — `default` and `book` built in, plus custom TOML themes with inheritance (`md2pdf theme create`)
-- 🧭 **`--toc`** — table of contents from headings; `--paper a4|letter`
+- 🧭 **`--toc`** — table of contents from headings; `--paper a4|a5|letter|legal`
 - 🔒 **Secure by default** — no remote fetches, path-traversal protection, size caps, raw HTML dropped
 - 🧱 **Decoupled architecture** — pluggable renderers: PDF, Typst source and standalone HTML
 - 🦀 **Single static binary** — fonts embedded, no runtime dependencies
@@ -74,8 +74,8 @@ sudo apt install ./md2pdf_*_amd64.deb   # from the Releases page
 cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf
 ```
 
-Full [installation matrix](docs/INSTALL.md) (`.deb`, `.rpm`, tarball, Action; COPR planned) ·
-[60-second quickstart](docs/QUICKSTART.md).
+Full [installation matrix](docs/INSTALL.md) (`.deb`, `.rpm`, Linux/macOS tarballs,
+Windows zip, Action; COPR planned) · [60-second quickstart](docs/QUICKSTART.md).
 
 ## Usage
 
@@ -116,7 +116,7 @@ md2pdf validate --strict docs/*.md                # CI linting
 ## Use in CI
 
 ```yaml
-- uses: mohamed-moetaz-njim/md2pdf@v0
+- uses: mohamed-moetaz-njim/md2pdf@v0.3.0
   with:
     input: docs/handbook.md
     output: handbook.pdf
@@ -150,7 +150,7 @@ bounded inputs, raw HTML dropped. See [SECURITY.md](SECURITY.md).
 | [Architecture](docs/ARCHITECTURE.md) | how the IR + renderers fit together |
 | [Security](SECURITY.md) | threat model and secure defaults |
 | [Benchmarks](docs/BENCHMARKS.md) · [Comparison](docs/COMPARISON.md) | measured numbers |
-| [Example gallery](examples/gallery/) | seven real documents |
+| [Example gallery](examples/gallery/) | eight real documents |
 | [Roadmap](docs/ROADMAP.md) · [Program](docs/PROGRAM.md) · [Impact](docs/IMPACT.md) | direction & sustainability |
 
 ## Contributing

@@ -13,17 +13,29 @@ inputs:
     required: false
     default: ""
   theme:
-    description: Theme (default | book).
+    description: Theme (default | book | path to a custom .toml theme).
     required: false
     default: default
   paper:
-    description: Paper size (a4 | letter).
+    description: Paper size (a4 | a5 | letter | legal).
     required: false
     default: a4
   toc:
     description: Add a table of contents (true | false).
     required: false
     default: "false"
+  format:
+    description: Output format (pdf | typst | html). Defaults to pdf.
+    required: false
+    default: ""
+  header:
+    description: Running page header ({title}, {author}, {date} placeholders).
+    required: false
+    default: ""
+  footer:
+    description: Running page footer ({title}, {author}, {date} placeholders).
+    required: false
+    default: ""
   args:
     description: Extra raw arguments passed to md2pdf.
     required: false
@@ -35,7 +47,7 @@ inputs:
 
 outputs:
   output:
-    description: Path of the generated PDF.
+    description: Path of the generated file.
     value: ${{ steps.convert.outputs.output }}
 
 runs:
@@ -65,14 +77,23 @@ runs:
         set -euo pipefail
         input='${{ inputs.input }}'
         output='${{ inputs.output }}'
+        format='${{ inputs.format }}'
         if [ -z "$output" ]; then
-          output="${input%.*}.pdf"
+          case "$format" in
+            typst) ext="typ" ;;
+            html) ext="html" ;;
+            *) ext="pdf" ;;
+          esac
+          output="${input%.*}.$ext"
         fi
-        toc=""
-        if [ '${{ inputs.toc }}' = 'true' ]; then toc="--toc"; fi
+        extra=()
+        if [ '${{ inputs.toc }}' = 'true' ]; then extra+=(--toc); fi
+        if [ -n "$format" ]; then extra+=(--format "$format"); fi
+        if [ -n '${{ inputs.header }}' ]; then extra+=(--header '${{ inputs.header }}'); fi
+        if [ -n '${{ inputs.footer }}' ]; then extra+=(--footer '${{ inputs.footer }}'); fi
         md2pdf "$input" -o "$output" \
           --theme '${{ inputs.theme }}' \
           --paper '${{ inputs.paper }}' \
-          $toc ${{ inputs.args }}
+          "${extra[@]}" ${{ inputs.args }}
         echo "output=$output" >> "$GITHUB_OUTPUT"
         echo "Wrote $output"

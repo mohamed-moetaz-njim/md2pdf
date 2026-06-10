@@ -7,7 +7,7 @@ use md2pdf_core::Config;
 
 const EXAMPLE_MD: &str = "---\ntitle: Project Documentation\nauthor: Your Name\ndate: 2026\n---\n\n# Introduction\n\nWrite your documentation in Markdown and run `md2pdf docs/example.md` to get a\nPDF. Tables, code blocks, task lists and footnotes all work out of the box.\n\n## Next steps\n\n- [ ] Replace this with your content\n- [ ] Push and let the workflow build the PDF on every release\n";
 
-const WORKFLOW_YML: &str = "name: docs\n\non:\n  push:\n    branches: [main]\n\njobs:\n  pdf:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: mohamed-moetaz-njim/md2pdf@v0\n        with:\n          input: docs/example.md\n          output: docs/example.pdf\n      - uses: actions/upload-artifact@v4\n        with:\n          name: docs-pdf\n          path: docs/example.pdf\n";
+const WORKFLOW_YML: &str = "name: docs\n\non:\n  push:\n    branches: [main]\n\njobs:\n  pdf:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: mohamed-moetaz-njim/md2pdf@v0.3.0\n        with:\n          input: docs/example.md\n          output: docs/example.pdf\n      - uses: actions/upload-artifact@v4\n        with:\n          name: docs-pdf\n          path: docs/example.pdf\n";
 
 pub fn run(dir: &Path) -> Result<()> {
     let docs = dir.join("docs");

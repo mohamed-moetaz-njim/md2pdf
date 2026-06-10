@@ -9,12 +9,15 @@ md2pdf is a single self-contained binary. Pick the row that matches your platfor
 | Fedora / RHEL | `.rpm` | `sudo dnf install ./md2pdf-*.x86_64.rpm` | ✅ via Releases |
 | Debian / Ubuntu | `.deb` | `sudo apt install ./md2pdf_*_amd64.deb` | ✅ via Releases |
 | Any Linux | tarball | download `md2pdf-*-x86_64-linux.tar.gz`, put `md2pdf` on `$PATH` | ✅ via Releases |
+| macOS (Apple Silicon) | tarball | download `md2pdf-*-aarch64-apple-darwin.tar.gz`, put `md2pdf` on `$PATH` | ✅ via Releases |
+| Windows | zip | download `md2pdf-*-x86_64-pc-windows-msvc.zip`, put `md2pdf.exe` on `%PATH%` | ✅ via Releases |
 | Any (Rust) | from git | `cargo install --git https://github.com/mohamed-moetaz-njim/md2pdf md2pdf` | ✅ available |
 | Any (Rust) | crates.io | `cargo install md2pdf` | ⏳ after first crates.io publish |
-| CI (GitHub Actions) | Action | `uses: mohamed-moetaz-njim/md2pdf@v0` | ⏳ after a `v0` tag is published |
+| CI (GitHub Actions) | Action | `uses: mohamed-moetaz-njim/md2pdf@v0.3.0` | ✅ available |
 | Fedora / RHEL | COPR | `sudo dnf copr enable mohamed-moetaz-njim/md2pdf && sudo dnf install md2pdf` | 🚧 planned, not yet available |
 
-`.deb`, `.rpm` and tarballs are attached to each
+`.deb`, `.rpm`, tarballs and zips are attached (with `SHA256SUMS` and build-provenance
+attestation) to each
 [GitHub Release](https://github.com/mohamed-moetaz-njim/md2pdf/releases). Rows marked
 ⏳/🚧 are not usable yet — see [docs/PROGRAM.md](PROGRAM.md) for the activation steps.
 
