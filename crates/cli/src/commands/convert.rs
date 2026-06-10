@@ -33,7 +33,13 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         .clone()
         .context("no input file given (try `md2pdf <file.md>` or `md2pdf --help`)")?;
 
-    let root = super::doc_root(&input);
+    // `md2pdf -` reads Markdown from stdin (assets resolve against the cwd).
+    let from_stdin = input.as_os_str() == "-";
+    let root = if from_stdin {
+        std::path::PathBuf::from(".")
+    } else {
+        super::doc_root(&input)
+    };
 
     // Layer 1: built-in defaults.
     let mut security = SecurityPolicy::strict(&root);
@@ -102,7 +108,11 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         opts.layout.page_numbers = false;
     }
 
-    let markdown = super::read_input(&input, &security)?;
+    let markdown = if from_stdin {
+        super::read_stdin(&security)?
+    } else {
+        super::read_input(&input, &security)?
+    };
     opts.security = security;
 
     let format = args
@@ -118,15 +128,29 @@ pub fn run(args: ConvertArgs) -> Result<()> {
 
     let rendered = md2pdf_core::convert(&markdown, &opts, format)?;
 
+    for d in &rendered.diagnostics {
+        eprintln!("warning: {}", d.message);
+    }
+
+    // `-o -` (or stdin input with no -o) streams the result to stdout.
+    let to_stdout = match &args.output {
+        Some(path) => path.as_os_str() == "-",
+        None => from_stdin,
+    };
+    if to_stdout {
+        use std::io::Write;
+        std::io::stdout()
+            .write_all(&rendered.bytes)
+            .context("could not write to stdout")?;
+        eprintln!("wrote stdout ({} bytes)", rendered.bytes.len());
+        return Ok(());
+    }
+
     let output = args
         .output
         .unwrap_or_else(|| input.with_extension(format.extension()));
     std::fs::write(&output, &rendered.bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
-
-    for d in &rendered.diagnostics {
-        eprintln!("warning: {}", d.message);
-    }
     eprintln!(
         "wrote {} ({} bytes)",
         output.display(),

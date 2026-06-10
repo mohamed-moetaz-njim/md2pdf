@@ -26,6 +26,25 @@ pub(crate) fn read_input(path: &Path, policy: &SecurityPolicy) -> Result<String>
     std::fs::read_to_string(path).with_context(|| format!("could not read {}", path.display()))
 }
 
+/// Read Markdown from stdin, enforcing the policy's input-size cap.
+pub(crate) fn read_stdin(policy: &SecurityPolicy) -> Result<String> {
+    use std::io::Read;
+    let mut buf = String::new();
+    // Read at most one byte over the cap so over-limit input is detectable.
+    std::io::stdin()
+        .lock()
+        .take(policy.max_input_bytes + 1)
+        .read_to_string(&mut buf)
+        .context("could not read stdin")?;
+    if buf.len() as u64 > policy.max_input_bytes {
+        anyhow::bail!(
+            "stdin input exceeds the {} byte limit",
+            policy.max_input_bytes
+        );
+    }
+    Ok(buf)
+}
+
 /// The directory used as the security/asset root for a document.
 pub(crate) fn doc_root(input: &Path) -> PathBuf {
     input

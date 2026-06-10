@@ -465,6 +465,65 @@ fn convert_admonition_renders_pdf() {
 }
 
 // ---------------------------------------------------------------------------
+// stdin / stdout
+// ---------------------------------------------------------------------------
+
+#[test]
+fn convert_stdin_to_stdout_pdf() {
+    let assert = cmd().arg("-").write_stdin(HELLO_MD).assert().success();
+    let out = &assert.get_output().stdout;
+    assert_eq!(&out[..5], b"%PDF-", "stdin → stdout must stream a PDF");
+}
+
+#[test]
+fn convert_stdin_to_file() {
+    let dir = TempDir::new().unwrap();
+    let out = dir.path().join("out.typ");
+
+    cmd()
+        .arg("-")
+        .arg("-o")
+        .arg(&out)
+        .write_stdin(HELLO_MD)
+        .assert()
+        .success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(content.contains("#set page"));
+}
+
+#[test]
+fn convert_file_to_stdout() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    let assert = cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg("-")
+        .arg("--format")
+        .arg("typst")
+        .assert()
+        .success();
+    let out = String::from_utf8(assert.get_output().stdout.clone()).unwrap();
+    assert!(out.contains("#set page"), "-o - must stream to stdout");
+}
+
+#[test]
+fn convert_definition_list_renders_pdf() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.pdf");
+    std::fs::write(&input, "# Doc\n\nTerm\n: Definition body.\n").unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let magic = std::fs::read(&out).unwrap();
+    assert_eq!(&magic[..5], b"%PDF-");
+}
+
+// ---------------------------------------------------------------------------
 // validate
 // ---------------------------------------------------------------------------
 
