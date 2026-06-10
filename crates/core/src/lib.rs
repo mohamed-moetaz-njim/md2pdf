@@ -19,7 +19,7 @@ pub mod theme;
 
 pub use config::Config;
 pub use ir::Document;
-pub use render::{Diagnostic, OutputFormat, Paper, RenderOptions, Rendered, Renderer};
+pub use render::{Diagnostic, Layout, OutputFormat, Paper, RenderOptions, Rendered, Renderer};
 pub use security::SecurityPolicy;
 pub use theme::Theme;
 
@@ -48,6 +48,7 @@ mod tests {
             paper: Paper::A4,
             toc: false,
             title: None,
+            layout: Default::default(),
             security: SecurityPolicy::strict(PathBuf::from(root)),
         }
     }
@@ -130,6 +131,39 @@ mod tests {
             src.contains("#parbreak()"),
             "multiple paragraphs in one list item must not run together: {src}"
         );
+    }
+
+    #[test]
+    fn layout_header_footer_and_placeholders() {
+        let md = "---\ntitle: Spec\nauthor: Ada\n---\n\n# Heading\n\nbody\n";
+        let mut o = opts(".");
+        o.layout = render::Layout {
+            header: Some("{title} — internal".into()),
+            footer: Some("by {author}".into()),
+            page_numbers: true,
+        };
+        let out = convert(md, &o, OutputFormat::Typst).unwrap();
+        let src = String::from_utf8(out.bytes).unwrap();
+        assert!(src.contains("Spec — internal"), "header placeholder: {src}");
+        assert!(src.contains("by Ada"), "footer placeholder: {src}");
+        assert!(
+            src.contains("counter(page).display"),
+            "custom footer must still carry the page number: {src}"
+        );
+        assert!(
+            !src.contains("numbering: \"1\""),
+            "page numbering moves into the custom footer"
+        );
+    }
+
+    #[test]
+    fn layout_no_page_numbers() {
+        let mut o = opts(".");
+        o.layout.page_numbers = false;
+        let out = convert("# T\n\nbody", &o, OutputFormat::Typst).unwrap();
+        let src = String::from_utf8(out.bytes).unwrap();
+        assert!(!src.contains("numbering: \"1\""));
+        assert!(!src.contains("counter(page)"));
     }
 
     #[test]

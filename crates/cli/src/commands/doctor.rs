@@ -41,6 +41,7 @@ pub fn run() -> Result<()> {
         paper: Paper::A4,
         toc: false,
         title: None,
+        layout: Default::default(),
         security: SecurityPolicy::strict(root),
     };
 

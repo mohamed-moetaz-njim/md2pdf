@@ -6,7 +6,7 @@
 
 use std::fmt::Write;
 
-use crate::ir::{Align, Block, Document, Inline, ListItem};
+use crate::ir::{Align, Block, Document, Inline, ListItem, Meta};
 use crate::render::{Diagnostic, RenderOptions};
 use crate::security::AssetDecision;
 use crate::theme::ThemeSpec;
@@ -16,7 +16,7 @@ pub fn lower(doc: &Document, opts: &RenderOptions, diags: &mut Vec<Diagnostic>) 
     let spec = opts.theme.spec();
     let mut s = String::new();
 
-    preamble(&mut s, &spec, opts);
+    preamble(&mut s, doc, &spec, opts);
     title_block(&mut s, doc, &spec, opts);
 
     if opts.toc {
@@ -35,14 +35,45 @@ struct Ctx<'a> {
     diags: &'a mut Vec<Diagnostic>,
 }
 
-fn preamble(s: &mut String, spec: &ThemeSpec, opts: &RenderOptions) {
-    let _ = writeln!(
+fn preamble(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOptions) {
+    let layout = &opts.layout;
+    let _ = write!(
         s,
-        "#set page(paper: \"{}\", margin: (x: {}cm, y: {}cm), numbering: \"1\")",
+        "#set page(paper: \"{}\", margin: (x: {}cm, y: {}cm)",
         opts.paper.typst_name(),
         spec.margin_x_cm,
         spec.margin_y_cm
     );
+    // With a custom footer, page numbers are emitted inside it instead of via
+    // `numbering`, which a `footer:` argument would otherwise suppress.
+    if layout.page_numbers && layout.footer.is_none() {
+        s.push_str(", numbering: \"1\"");
+    }
+    if let Some(header) = &layout.header {
+        let text = substitute_meta(header, &doc.meta);
+        let _ = write!(
+            s,
+            ", header: align(center)[#text(size: 9pt, fill: luma(120))[#\"{}\"]]",
+            esc(&text)
+        );
+    }
+    if let Some(footer) = &layout.footer {
+        let text = substitute_meta(footer, &doc.meta);
+        if layout.page_numbers {
+            let _ = write!(
+                s,
+                ", footer: context [#text(size: 9pt, fill: luma(120))[#\"{}\"] #h(1fr) #text(size: 9pt, fill: luma(120))[#counter(page).display(\"1\")]]",
+                esc(&text)
+            );
+        } else {
+            let _ = write!(
+                s,
+                ", footer: align(left)[#text(size: 9pt, fill: luma(120))[#\"{}\"]]",
+                esc(&text)
+            );
+        }
+    }
+    s.push_str(")\n");
     let _ = writeln!(
         s,
         "#set text(font: \"{}\", size: {}pt, lang: \"en\")",
@@ -307,6 +338,14 @@ fn emit_image(src: &str, alt: &str, s: &mut String, ctx: &mut Ctx) {
             let _ = write!(s, "#emph[#\"{}\"]", esc(alt));
         }
     }
+}
+
+/// Resolve `{title}`, `{author}` and `{date}` placeholders against metadata.
+fn substitute_meta(template: &str, meta: &Meta) -> String {
+    template
+        .replace("{title}", meta.title.as_deref().unwrap_or(""))
+        .replace("{author}", meta.author.as_deref().unwrap_or(""))
+        .replace("{date}", meta.date.as_deref().unwrap_or(""))
 }
 
 /// Escape a string for inclusion inside a Typst `"..."` literal.

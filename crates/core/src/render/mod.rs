@@ -53,6 +53,27 @@ impl Paper {
     }
 }
 
+/// Page furniture: running header/footer text and page numbering.
+///
+/// Header and footer strings may contain `{title}`, `{author}` and `{date}`
+/// placeholders, resolved from the document metadata at render time.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Layout {
+    pub header: Option<String>,
+    pub footer: Option<String>,
+    pub page_numbers: bool,
+}
+
+impl Default for Layout {
+    fn default() -> Self {
+        Self {
+            header: None,
+            footer: None,
+            page_numbers: true,
+        }
+    }
+}
+
 /// Everything a renderer needs beyond the document itself.
 #[derive(Debug, Clone)]
 pub struct RenderOptions {
@@ -60,6 +81,7 @@ pub struct RenderOptions {
     pub paper: Paper,
     pub toc: bool,
     pub title: Option<String>,
+    pub layout: Layout,
     pub security: SecurityPolicy,
 }
 

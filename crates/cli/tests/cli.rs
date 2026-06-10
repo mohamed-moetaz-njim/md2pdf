@@ -331,6 +331,78 @@ toc = true
 }
 
 #[test]
+fn convert_header_footer_renders_pdf() {
+    // End-to-end: the page-furniture Typst we generate must actually compile.
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.pdf");
+    std::fs::write(
+        &input,
+        "---\ntitle: Spec\nauthor: Ada\n---\n\n# H\n\nbody\n",
+    )
+    .unwrap();
+
+    cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .arg("--header")
+        .arg("{title} — confidential")
+        .arg("--footer")
+        .arg("by {author}")
+        .assert()
+        .success();
+
+    let magic = std::fs::read(&out).unwrap();
+    assert_eq!(&magic[..5], b"%PDF-");
+}
+
+#[test]
+fn convert_no_page_numbers_renders_pdf() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.pdf");
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .arg("--no-page-numbers")
+        .assert()
+        .success();
+
+    assert!(out.exists());
+}
+
+#[test]
+fn convert_config_layout_applies() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let config = dir.path().join("md2pdf.toml");
+    let out = dir.path().join("out.typ");
+
+    std::fs::write(
+        &config,
+        r#"[layout]
+header = "Internal"
+page_numbers = false
+"#,
+    )
+    .unwrap();
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(content.contains("Internal"), "config header must apply");
+    assert!(
+        !content.contains("numbering: \"1\""),
+        "config page_numbers = false must apply"
+    );
+}
+
+#[test]
 fn convert_config_invalid_path() {
     cmd()
         .arg(sample_path())

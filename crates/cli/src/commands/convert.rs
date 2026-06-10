@@ -23,6 +23,7 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         paper: Paper::A4,
         toc: false,
         title: None,
+        layout: Default::default(),
         security: security.clone(),
     };
 
@@ -57,6 +58,17 @@ pub fn run(args: ConvertArgs) -> Result<()> {
     }
     if args.title.is_some() {
         opts.title = args.title.clone();
+    }
+    if args.header.is_some() {
+        opts.layout.header = args.header.clone();
+    }
+    if args.footer.is_some() {
+        opts.layout.footer = args.footer.clone();
+    }
+    if args.page_numbers {
+        opts.layout.page_numbers = true;
+    } else if args.no_page_numbers {
+        opts.layout.page_numbers = false;
     }
 
     let markdown = super::read_input(&input, &security)?;

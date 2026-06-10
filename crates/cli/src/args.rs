@@ -89,6 +89,22 @@ pub struct ConvertArgs {
     #[arg(long)]
     pub title: Option<String>,
 
+    /// Running header text ({title}, {author}, {date} placeholders).
+    #[arg(long)]
+    pub header: Option<String>,
+
+    /// Running footer text ({title}, {author}, {date} placeholders).
+    #[arg(long)]
+    pub footer: Option<String>,
+
+    /// Show page numbers (default: on).
+    #[arg(long, overrides_with = "no_page_numbers")]
+    pub page_numbers: bool,
+
+    /// Hide page numbers.
+    #[arg(long, overrides_with = "page_numbers")]
+    pub no_page_numbers: bool,
+
     /// Path to an md2pdf.toml config file.
     #[arg(long)]
     pub config: Option<PathBuf>,
