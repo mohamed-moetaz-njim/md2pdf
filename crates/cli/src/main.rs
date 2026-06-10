@@ -13,7 +13,7 @@ fn main() -> Result<()> {
 
     match cli.command {
         Some(Command::Convert(args)) => commands::convert::run(args),
-        Some(Command::Validate { input }) => commands::validate::run(&input),
+        Some(Command::Validate { inputs, strict }) => commands::validate::run(&inputs, strict),
         Some(Command::Doctor) => commands::doctor::run(),
         Some(Command::Init { dir }) => commands::init::run(&dir),
         Some(Command::Theme(ThemeCommand::List)) => commands::theme::list(),
