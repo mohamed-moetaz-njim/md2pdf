@@ -3,9 +3,16 @@ name: release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.3.0); created at the current commit if it does not exist"
+        required: true
 
 env:
   CARGO_TERM_COLOR: always
+  # Tag-push runs use the pushed ref; manual dispatches name the tag explicitly.
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   package:
@@ -44,7 +51,7 @@ jobs:
 
       - name: Build tarball
         run: |
-          v="${GITHUB_REF_NAME#v}"
+          v="${RELEASE_TAG#v}"
           cp target/release/md2pdf dist/
           tar -C dist -czf "md2pdf-${v}-x86_64-linux.tar.gz" \
             md2pdf md2pdf.1 md2pdf.bash md2pdf.zsh md2pdf.fish
@@ -65,6 +72,7 @@ jobs:
       - name: Upload artifacts to the release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             target/debian/*.deb
             target/generate-rpm/*.rpm
@@ -104,7 +112,7 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          v="${GITHUB_REF_NAME#v}"
+          v="${RELEASE_TAG#v}"
           if [ "${{ runner.os }}" = "Windows" ]; then
             7z a "md2pdf-${v}-${{ matrix.target }}.zip" \
               ./target/${{ matrix.target }}/release/md2pdf.exe
@@ -116,6 +124,7 @@ jobs:
       - name: Upload artifacts to the release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             md2pdf-*-${{ matrix.target }}.*
           generate_release_notes: false
