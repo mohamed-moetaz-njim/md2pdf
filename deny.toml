@@ -1,0 +1,48 @@
+# cargo-deny policy: license allowlist, duplicate-crate awareness and source
+# restrictions for the dependency tree. Advisories are checked both here and
+# by the weekly audit workflow.
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = [
+    # Unmaintained-crate notices (not vulnerabilities), all transitive via the
+    # pinned typst/syntect stack; revisit when upstream moves off them.
+    { id = "RUSTSEC-2025-0141", reason = "bincode 1.x via typst" },
+    { id = "RUSTSEC-2024-0436", reason = "paste via typst dependencies" },
+    { id = "RUSTSEC-2024-0320", reason = "yaml-rust via syntect (typst highlighting)" },
+]
+
+[licenses]
+version = 2
+# Everything in the tree today; all permissive or weak-copyleft, compatible
+# with this project's MIT license. Adding a dependency under a new license
+# fails CI until the license is reviewed and listed here.
+allow = [
+    "0BSD",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CC0-1.0",
+    "MIT",
+    "MITNFA",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Unlicense",
+    "Zlib",
+]
+
+[bans]
+# The typst stack inevitably carries some duplicate minor versions.
+multiple-versions = "allow"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
