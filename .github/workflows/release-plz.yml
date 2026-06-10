@@ -34,7 +34,7 @@ jobs:
             echo "::notice::CARGO_REGISTRY_TOKEN not set — skipping release-plz."
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: steps.gate.outputs.enabled == 'true'
         with:
           fetch-depth: 0
