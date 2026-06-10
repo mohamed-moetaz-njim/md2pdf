@@ -116,7 +116,9 @@ impl Config {
     pub fn validate(&self) -> anyhow::Result<()> {
         if let Some(doc) = &self.document {
             if let Some(theme) = &doc.theme {
-                if Theme::from_name(theme).is_none() {
+                // Custom themes are file paths, resolved (and validated)
+                // against the document root by the CLI.
+                if Theme::from_name(theme).is_none() && !theme.ends_with(".toml") {
                     anyhow::bail!("unknown theme: {theme}");
                 }
             }

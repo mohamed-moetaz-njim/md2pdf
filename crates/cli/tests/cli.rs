@@ -585,6 +585,92 @@ fn init_defaults_to_current_dir() {
 // ---------------------------------------------------------------------------
 
 #[test]
+fn theme_create_and_use() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.typ");
+    let theme = dir.path().join("corporate.toml");
+
+    std::fs::write(
+        &theme,
+        r##"base = "default"
+heading_color = "#aa0000"
+body_font = "New Computer Modern"
+"##,
+    )
+    .unwrap();
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .arg("--theme")
+        .arg(&theme)
+        .assert()
+        .success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(content.contains("#aa0000"), "custom color: {content}");
+    assert!(
+        content.contains("New Computer Modern"),
+        "custom font: {content}"
+    );
+}
+
+#[test]
+fn theme_custom_renders_pdf() {
+    // A custom theme must also survive full Typst compilation.
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.pdf");
+    let theme = dir.path().join("t.toml");
+    std::fs::write(&theme, "base = \"book\"\nbody_size_pt = 12.0\n").unwrap();
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .arg("--theme")
+        .arg(&theme)
+        .assert()
+        .success();
+
+    let magic = std::fs::read(&out).unwrap();
+    assert_eq!(&magic[..5], b"%PDF-");
+}
+
+#[test]
+fn theme_unknown_fails() {
+    cmd()
+        .arg(sample_path())
+        .arg("--theme")
+        .arg("sparkly")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("unknown theme"));
+}
+
+#[test]
+fn theme_create_subcommand() {
+    let dir = TempDir::new().unwrap();
+    let cwd = std::env::current_dir().unwrap();
+    std::env::set_current_dir(dir.path()).unwrap();
+
+    cmd()
+        .arg("theme")
+        .arg("create")
+        .arg("mytheme")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("mytheme.toml"));
+
+    assert!(dir.path().join("mytheme.toml").exists());
+    std::env::set_current_dir(cwd).unwrap();
+}
+
+#[test]
 fn theme_list() {
     cmd()
         .arg("theme")

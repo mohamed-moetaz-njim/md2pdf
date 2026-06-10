@@ -46,7 +46,7 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 - 🖼️ **Image sizing** — `![logo](logo.png){width=50%}`
 - 📄 **Page furniture** — `--header`/`--footer` with `{title}`/`{author}`/`{date}` placeholders, page numbers
 - 🧾 **Frontmatter** — `title`, `author`, `date`, `subtitle` and arbitrary metadata
-- 🎨 **Themes** — `default` and `book`, with a data-driven theme model
+- 🎨 **Themes** — `default` and `book` built in, plus custom TOML themes with inheritance (`md2pdf theme create`)
 - 🧭 **`--toc`** — table of contents from headings; `--paper a4|letter`
 - 🔒 **Secure by default** — no remote fetches, path-traversal protection, size caps, raw HTML dropped
 - 🧱 **Decoupled architecture** — pluggable renderers (PDF, Typst source today; HTML/DOCX planned)
@@ -86,11 +86,12 @@ md2pdf validate <FILES...>         Parse and lint without rendering (--strict to
 md2pdf doctor                      Check the local environment
 md2pdf init [DIR]                  Scaffold a docs project + CI workflow
 md2pdf theme list                  List built-in themes
+md2pdf theme create <NAME>         Scaffold a custom theme file
 
 Convert options:
   -o, --output <FILE>    Output path (default: input with .pdf)
       --format <FMT>     pdf | typst (default: from output extension, else pdf)
-      --theme <THEME>    default | book
+      --theme <THEME>    default | book | path/to/theme.toml
       --paper <PAPER>    a4 | a5 | letter | legal
       --toc / --no-toc   Enable or disable the table of contents
       --title <TITLE>    Override the document title

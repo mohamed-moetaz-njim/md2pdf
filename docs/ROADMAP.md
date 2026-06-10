@@ -18,17 +18,19 @@ The decoupling and security work that everything else depends on.
 
 ## v0.3 — Layout & content features
 
-- [ ] **Headers/footers** — `Block`-free page furniture driven by `Meta`
+- [x] **Headers/footers** — `Block`-free page furniture driven by `Meta`
       (`render/typst/lower.rs`: `#set page(header: …, footer: …)`); flags
-      `--header`, `--footer`, `--page-numbers`.
+      `--header`, `--footer`, `--no-page-numbers`; `{title}`/`{author}`/`{date}`
+      placeholders.
 - [x] **Config file** — `md2pdf.toml` (theme, paper, security, header/footer);
       add `toml` + `serde`; load in `cli`, merge under CLI flags. `init` emits it.
-- [ ] **TOML themes + inheritance** — `theme.rs`: `ThemeSpec { base: Option<…> }`,
-      `Theme::load(path)`, `theme create <name>`, `theme list` shows custom themes.
+- [x] **TOML themes + inheritance** — `theme.rs`: TOML overrides over a built-in
+      `base`, `Theme::load(path)`, `theme create <name>`, `--theme file.toml`.
 - [ ] **Local asset bundling** — copy/validate referenced assets into an output
       bundle; `--bundle` for self-contained artifacts.
-- [ ] **Image sizing** — width/attributes via `{width=}` syntax in IR `Image`.
-- [ ] **Definition lists & admonitions** — extend IR + parser + renderers.
+- [x] **Image sizing** — width/attributes via `{width=}` syntax in IR `Image`.
+- [x] **Admonitions** — GitHub alerts (`> [!NOTE]` …) as colored callouts.
+- [ ] **Definition lists** — extend IR + parser + renderers.
 
 ## v0.4 — Diagrams & highlighting
 
