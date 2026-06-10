@@ -11,7 +11,7 @@ Effort: S ≈ hours · M ≈ a day · L ≈ multiple days.
 
 | Item | Effort | Adoption | Program | Status |
 |:-----|:------:|:--------:|:-------:|:-------|
-| GitHub Releases (binary/.deb/.rpm/tarball) | S | 5 | 4 | ✅ workflow ready; needs a tag to publish |
+| GitHub Releases (binary/.deb/.rpm/tarball/zip) | S | 5 | 4 | ✅ live — v0.3.0 published (linux/macOS/Windows, SHA256SUMS, provenance) |
 | `.deb` packaging | S | 4 | 3 | ✅ verified locally + in CI |
 | `.rpm` / COPR | M | 4 | 3 | ✅ rpm verified; COPR needs account setup |
 | `cargo install` | S | 4 | 3 | ✅ `--git` works now; crates.io on first publish |
@@ -23,7 +23,7 @@ Effort: S ≈ hours · M ≈ a day · L ≈ multiple days.
 | Item | Effort | Adoption | Program | Status |
 |:-----|:------:|:--------:|:-------:|:-------|
 | Measured md2pdf numbers (size/mem/startup) | S | 4 | 4 | ✅ `docs/BENCHMARKS.md` |
-| Reproducibility proof (byte-identical) | S | 5 | 5 | ✅ verified, headline claim |
+| Reproducibility proof (byte-identical) | S | 5 | 5 | ✅ enforced in CI (render-twice byte gate, linux+macOS) |
 | vs Pandoc (measured) | S | 5 | 4 | ✅ 3.5× faster, smaller, reproducible |
 | vs Typst / mdBook / md-to-pdf | M | 3 | 3 | 🔧 harness ready; comparators not installed locally |
 | Benchmark CI | S | 2 | 4 | ✅ `bench.yml` |
@@ -32,7 +32,7 @@ Effort: S ≈ hours · M ≈ a day · L ≈ multiple days.
 
 | Item | Effort | Adoption | Program | Status |
 |:-----|:------:|:--------:|:-------:|:-------|
-| 7 example documents + real PDFs | M | 5 | 4 | ✅ `examples/gallery/` |
+| 8 example documents + real PDFs | M | 5 | 4 | ✅ `examples/gallery/` |
 | First-page screenshots | S | 4 | 2 | ✅ generated |
 | Gallery CI (anti-drift) | S | 2 | 3 | ✅ `examples.yml` |
 | GIF demo | S | 4 | 2 | ⬜ needs a screen recording (manual) |
@@ -45,7 +45,8 @@ Effort: S ≈ hours · M ≈ a day · L ≈ multiple days.
 | PR template (enforces architecture) | S | 2 | 4 | ✅ |
 | Dependency automation | S | 1 | 4 | ✅ `dependabot.yml` |
 | Release + changelog automation | M | 2 | 5 | ✅ `release-plz` (needs `CARGO_REGISTRY_TOKEN`) |
-| CI: fmt + clippy + test + smoke | S | 3 | 4 | ✅ `ci.yml` |
+| CI: fmt + clippy + test + smoke + repro gate | S | 3 | 4 | ✅ `ci.yml` (linux/macOS/Windows + MSRV) |
+| Security advisories CI | S | 1 | 4 | ✅ `audit.yml` (weekly cargo-audit) |
 
 ## Phase 5 — Ecosystem positioning
 
@@ -65,11 +66,11 @@ Effort: S ≈ hours · M ≈ a day · L ≈ multiple days.
 
 ## Highest-leverage next actions (owner)
 
-1. **Tag `v0.2.0`** → publishes Releases + packages (Adoption 5 / Program 4).
-2. **Add `CARGO_REGISTRY_TOKEN`** and publish to crates.io (Adoption 4).
-3. **Set up COPR** from the repo (Adoption 4).
-4. **Record a GIF** for the README (Adoption 4).
-5. **Submit to "Show HN" / r/rust** once the gallery + benchmarks are live (Adoption 5).
+1. **Add `CARGO_REGISTRY_TOKEN`** and publish to crates.io (Adoption 4) —
+   release v0.3.0 is already live with multi-platform binaries.
+2. **Set up COPR** from the repo (Adoption 4).
+3. **Record a GIF** for the README (Adoption 4).
+4. **Submit to "Show HN" / r/rust** — the gallery and a published release are live (Adoption 5).
 
 ## What we are deliberately NOT doing (complexity without adoption)
 

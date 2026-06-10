@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/mohamed-moetaz-njim/md2pdf/security/advisories/new
+    about: Report security issues privately via a GitHub security advisory.
+  - name: Question / discussion
+    url: https://github.com/mohamed-moetaz-njim/md2pdf/discussions
+    about: Ask questions or discuss ideas before opening an issue.

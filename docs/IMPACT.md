@@ -26,8 +26,8 @@ SSRF risk wherever documentation is built from untrusted or third-party content.
 ## What md2pdf delivers
 
 - **Deterministic output** — identical `sha256` across repeated runs and across
-  debug/release builds (verified locally; reproducibility is by construction, since the
-  engine and fonts are pinned and no timestamps are embedded).
+  debug/release builds — enforced by a render-twice byte-compare gate in CI on Linux
+  and macOS (the engine and fonts are pinned and no timestamps are embedded).
 - **~3.5× faster** than Pandoc+LaTeX with **less memory**, and a **47 MB** self-contained
   binary vs **~1.7 GB** of toolchain — *locally measured on a single machine*, reproducible
   with the harness, not yet CI-published. (See [BENCHMARKS.md](BENCHMARKS.md).)

@@ -13,7 +13,8 @@ independently evolvable and testable.
  │  Markdown ─▶ parser ─▶ Document (ir) ─▶ Renderer ─▶ bytes  │
  │              (comrak)   security ▲        ├─ TypstPdf       │
  │                                  │        ├─ TypstSource    │
- │                          asset decisions  └─ Html/Docx*     │
+ │                          asset decisions  ├─ Html           │
+ │                                           └─ Docx*          │
  └───────────────────────────────────────────────────────────┘
                  crates/cli  ── wires args ▶ pipeline ▶ file   (*planned)
 ```
@@ -33,6 +34,8 @@ crates/
         typst/
           mod.rs            # TypstPdfRenderer, TypstSourceRenderer
           lower.rs          # IR → Typst markup (shared by both renderers)
+        html/
+          mod.rs            # HtmlRenderer (standalone page, theme as CSS)
       lib.rs                # convert() convenience + unit tests
   cli/                      # the binary
     src/
@@ -46,7 +49,7 @@ crates/
 `Document { meta: Meta, blocks: Vec<Block> }` is the single boundary type.
 
 - `Block`: `Heading`, `Paragraph`, `CodeBlock`, `BlockQuote`, `List`, `Table`,
-  `ThematicBreak`, `RawHtml`.
+  `DefinitionList`, `Admonition`, `ThematicBreak`, `RawHtml`.
 - `Inline`: `Text`, `Emph`, `Strong`, `Strikethrough`, `Superscript`, `Code`,
   `Link`, `Image`, `Footnote`, `SoftBreak`, `LineBreak`.
 
@@ -69,15 +72,15 @@ site) so renderers never chase cross-references. Raw HTML is preserved in the IR
 
 ## Extension points
 
-### Add an output format (e.g. HTML)
+### Add an output format (e.g. DOCX)
 
-1. Add `OutputFormat::Html` and its extension in `render/mod.rs`.
-2. Create `render/html/mod.rs` implementing `Renderer` over the IR.
+1. Add `OutputFormat::Docx` and its extension in `render/mod.rs`.
+2. Create `render/docx/mod.rs` implementing `Renderer` over the IR.
 3. Register it in `render::for_format`.
 
 No change to `parser`, `ir`, or the CLI argument layer beyond exposing the flag.
-`TypstSourceRenderer` is a worked example of a second back-end sharing zero code
-with the PDF path except the IR.
+`render/html/` is a worked example of a third back-end sharing zero code with
+the PDF path except the IR.
 
 ### Add a theme
 
