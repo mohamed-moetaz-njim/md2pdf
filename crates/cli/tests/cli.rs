@@ -448,6 +448,19 @@ fn convert_format_html() {
 }
 
 #[test]
+fn convert_format_docx() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.docx");
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let magic = std::fs::read(&out).unwrap();
+    assert_eq!(&magic[..2], b"PK", "docx output must be a zip package");
+}
+
+#[test]
 fn convert_admonition_renders_pdf() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("doc.md");
