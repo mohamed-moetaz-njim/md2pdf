@@ -24,7 +24,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Convert a Markdown file to PDF (or Typst source).
+    /// Convert a Markdown file to PDF (or Typst, HTML, DOCX).
     Convert(ConvertArgs),
     /// Parse documents and report problems without rendering.
     Validate {
@@ -147,6 +147,7 @@ pub enum FormatArg {
     Pdf,
     Typst,
     Html,
+    Docx,
 }
 
 impl From<FormatArg> for OutputFormat {
@@ -155,6 +156,7 @@ impl From<FormatArg> for OutputFormat {
             FormatArg::Pdf => OutputFormat::Pdf,
             FormatArg::Typst => OutputFormat::Typst,
             FormatArg::Html => OutputFormat::Html,
+            FormatArg::Docx => OutputFormat::Docx,
         }
     }
 }

@@ -5,6 +5,7 @@
 //! HTML and (future) DOCX back-ends are interchangeable. The CLI selects a
 //! back-end by [`OutputFormat`] and never reaches into renderer internals.
 
+pub mod docx;
 pub mod html;
 pub mod typst;
 
@@ -21,6 +22,8 @@ pub enum OutputFormat {
     Typst,
     /// A standalone HTML page with the theme inlined as CSS.
     Html,
+    /// An OOXML word-processing document (experimental).
+    Docx,
 }
 
 impl OutputFormat {
@@ -29,6 +32,7 @@ impl OutputFormat {
             "pdf" => Some(OutputFormat::Pdf),
             "typ" | "typst" => Some(OutputFormat::Typst),
             "html" | "htm" => Some(OutputFormat::Html),
+            "docx" => Some(OutputFormat::Docx),
             _ => None,
         }
     }
@@ -38,6 +42,7 @@ impl OutputFormat {
             OutputFormat::Pdf => "pdf",
             OutputFormat::Typst => "typ",
             OutputFormat::Html => "html",
+            OutputFormat::Docx => "docx",
         }
     }
 }
@@ -129,5 +134,6 @@ pub fn for_format(format: OutputFormat) -> Box<dyn Renderer> {
         OutputFormat::Pdf => Box::new(typst::TypstPdfRenderer),
         OutputFormat::Typst => Box::new(typst::TypstSourceRenderer),
         OutputFormat::Html => Box::new(html::HtmlRenderer),
+        OutputFormat::Docx => Box::new(docx::DocxRenderer),
     }
 }
