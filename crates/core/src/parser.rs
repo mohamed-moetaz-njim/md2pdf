@@ -1,7 +1,8 @@
 //! Markdown → [`Document`] lowering. This is the only place comrak is used;
 //! everything downstream operates on the renderer-agnostic [`crate::ir`].
 
-use std::collections::HashMap;
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
 
 use comrak::nodes::{AstNode, NodeValue, TableAlignment};
 use comrak::{Arena, Options, parse_document};
@@ -107,17 +108,28 @@ fn unquote(s: &str) -> String {
     }
 }
 
-fn collect_footnotes<'a>(root: Node<'a>) -> HashMap<String, Node<'a>> {
-    let mut map = HashMap::new();
-    for node in root.descendants() {
-        if let NodeValue::FootnoteDefinition(def) = &node.data.borrow().value {
-            map.insert(def.name.clone(), node);
-        }
-    }
-    map
+/// Footnote definitions plus the set of names currently being expanded,
+/// used to break reference cycles (a footnote that references itself, or two
+/// footnotes referencing each other, must not recurse forever).
+struct Footnotes<'a> {
+    defs: HashMap<String, Node<'a>>,
+    expanding: RefCell<HashSet<String>>,
 }
 
-fn block<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Option<Block> {
+fn collect_footnotes<'a>(root: Node<'a>) -> Footnotes<'a> {
+    let mut defs = HashMap::new();
+    for node in root.descendants() {
+        if let NodeValue::FootnoteDefinition(def) = &node.data.borrow().value {
+            defs.insert(def.name.clone(), node);
+        }
+    }
+    Footnotes {
+        defs,
+        expanding: RefCell::new(HashSet::new()),
+    }
+}
+
+fn block<'a>(node: Node<'a>, fns: &Footnotes<'a>) -> Option<Block> {
     let value = node.data.borrow().value.clone();
     match value {
         NodeValue::Paragraph => Some(Block::Paragraph(inlines(node, fns))),
@@ -170,7 +182,7 @@ fn block<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Option<Block> {
     }
 }
 
-fn list_item<'a>(item: Node<'a>, fns: &HashMap<String, Node<'a>>) -> ListItem {
+fn list_item<'a>(item: Node<'a>, fns: &Footnotes<'a>) -> ListItem {
     let task = match &item.data.borrow().value {
         NodeValue::TaskItem(t) => Some(t.symbol.is_some()),
         _ => None,
@@ -181,7 +193,7 @@ fn list_item<'a>(item: Node<'a>, fns: &HashMap<String, Node<'a>>) -> ListItem {
     }
 }
 
-fn table<'a>(node: Node<'a>, aligns: &[TableAlignment], fns: &HashMap<String, Node<'a>>) -> Block {
+fn table<'a>(node: Node<'a>, aligns: &[TableAlignment], fns: &Footnotes<'a>) -> Block {
     let align = aligns
         .iter()
         .map(|a| match a {
@@ -206,7 +218,7 @@ fn table<'a>(node: Node<'a>, aligns: &[TableAlignment], fns: &HashMap<String, No
     Block::Table { align, head, rows }
 }
 
-fn inlines<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Vec<Inline> {
+fn inlines<'a>(node: Node<'a>, fns: &Footnotes<'a>) -> Vec<Inline> {
     let mut out = Vec::new();
     for child in node.children() {
         inline(child, fns, &mut out);
@@ -262,7 +274,7 @@ fn is_valid_dimension(v: &str) -> bool {
     })
 }
 
-fn inline<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>, out: &mut Vec<Inline>) {
+fn inline<'a>(node: Node<'a>, fns: &Footnotes<'a>, out: &mut Vec<Inline>) {
     let value = node.data.borrow().value.clone();
     match value {
         NodeValue::Text(t) => out.push(Inline::Text(t.to_string())),
@@ -283,9 +295,14 @@ fn inline<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>, out: &mut Vec<Inl
             width: None,
         }),
         NodeValue::FootnoteReference(r) => {
-            if let Some(def) = fns.get(&r.name) {
-                let blocks = def.children().filter_map(|n| block(n, fns)).collect();
-                out.push(Inline::Footnote(blocks));
+            if let Some(def) = fns.defs.get(&r.name) {
+                // Guard against definition cycles: a reference seen while its
+                // own definition is being expanded is dropped.
+                if fns.expanding.borrow_mut().insert(r.name.clone()) {
+                    let blocks = def.children().filter_map(|n| block(n, fns)).collect();
+                    fns.expanding.borrow_mut().remove(&r.name);
+                    out.push(Inline::Footnote(blocks));
+                }
             }
         }
         NodeValue::HtmlInline(_) => {}
