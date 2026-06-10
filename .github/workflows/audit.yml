@@ -19,13 +19,13 @@ jobs:
       contents: read
       issues: write # the action files issues for new advisories
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rust-lang/audit@v1
 
   deny:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: License, source and advisory policy (deny.toml)
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
