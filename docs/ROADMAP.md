@@ -21,7 +21,7 @@ The decoupling and security work that everything else depends on.
 - [ ] **Headers/footers** — `Block`-free page furniture driven by `Meta`
       (`render/typst/lower.rs`: `#set page(header: …, footer: …)`); flags
       `--header`, `--footer`, `--page-numbers`.
-- [ ] **Config file** — `md2pdf.toml` (theme, paper, security, header/footer);
+- [x] **Config file** — `md2pdf.toml` (theme, paper, security, header/footer);
       add `toml` + `serde`; load in `cli`, merge under CLI flags. `init` emits it.
 - [ ] **TOML themes + inheritance** — `theme.rs`: `ThemeSpec { base: Option<…> }`,
       `Theme::load(path)`, `theme create <name>`, `theme list` shows custom themes.

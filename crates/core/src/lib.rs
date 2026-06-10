@@ -122,6 +122,17 @@ mod tests {
     }
 
     #[test]
+    fn loose_list_item_paragraphs_are_separated() {
+        let md = "- first paragraph\n\n  second paragraph\n";
+        let out = convert(md, &opts("."), OutputFormat::Typst).unwrap();
+        let src = String::from_utf8(out.bytes).unwrap();
+        assert!(
+            src.contains("#parbreak()"),
+            "multiple paragraphs in one list item must not run together: {src}"
+        );
+    }
+
+    #[test]
     fn typst_source_render_is_deterministic() {
         let md = "# Title\n\nHello **world**.";
         let a = convert(md, &opts("."), OutputFormat::Typst).unwrap();
