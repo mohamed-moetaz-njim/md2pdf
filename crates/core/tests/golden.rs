@@ -34,8 +34,10 @@ fn sample_lowering_matches_golden() {
         return;
     }
 
+    // Normalize in case a non-standard git config checked the file out CRLF.
     let expected = std::fs::read_to_string(&golden)
-        .expect("golden file missing — run with UPDATE_GOLDEN=1 to create it");
+        .expect("golden file missing — run with UPDATE_GOLDEN=1 to create it")
+        .replace("\r\n", "\n");
     assert_eq!(
         actual, expected,
         "Typst lowering changed; if intentional, regenerate with UPDATE_GOLDEN=1"

@@ -208,6 +208,18 @@ mod tests {
     }
 
     #[test]
+    fn crlf_and_lf_inputs_render_identically() {
+        let lf = "---\ntitle: X\n---\n\n# H\n\n```rust\nfn main() {}\n```\n\ntext\n";
+        let crlf = lf.replace('\n', "\r\n");
+        let a = convert(lf, &opts("."), OutputFormat::Typst).unwrap();
+        let b = convert(&crlf, &opts("."), OutputFormat::Typst).unwrap();
+        assert_eq!(
+            a.bytes, b.bytes,
+            "line-ending convention must not change the output bytes"
+        );
+    }
+
+    #[test]
     fn typst_source_render_is_deterministic() {
         let md = "# Title\n\nHello **world**.";
         let a = convert(md, &opts("."), OutputFormat::Typst).unwrap();
