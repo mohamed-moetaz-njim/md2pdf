@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+- **Experimental DOCX renderer** (`--format docx` or a `.docx` output path):
+  headings, lists, tables, code, blockquotes, admonitions, definition lists,
+  footnotes, hyperlinks, images and page headers/footers, with deterministic
+  output (paragraph/footnote ids are normalized).
+- **Directory conversion**: `md2pdf docs/` converts every Markdown file under
+  the tree; `-o <DIR>` mirrors the structure.
+- `completions`/piped output no longer panic on closed pipes (SIGPIPE default).
+- New gallery example (`feature-tour`) showcasing the 0.3 features.
+- CI: `cargo-deny` license/source policy and a `cargo-semver-checks` API guard
+  against the latest release.
+
 ## [0.3.0] - 2026-06-10
 
 ### Added

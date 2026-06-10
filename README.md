@@ -49,7 +49,7 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 - 🎨 **Themes** — `default` and `book` built in, plus custom TOML themes with inheritance (`md2pdf theme create`)
 - 🧭 **`--toc`** — table of contents from headings; `--paper a4|a5|letter|legal`
 - 🔒 **Secure by default** — no remote fetches, path-traversal protection, size caps, raw HTML dropped
-- 🧱 **Decoupled architecture** — pluggable renderers: PDF, Typst source and standalone HTML
+- 🧱 **Decoupled architecture** — pluggable renderers: PDF, Typst source, standalone HTML, and experimental DOCX
 - 🦀 **Single static binary** — fonts embedded, no runtime dependencies
 
 ## Install
@@ -90,7 +90,7 @@ md2pdf theme create <NAME>         Scaffold a custom theme file
 
 Convert options:
   -o, --output <FILE>    Output path (default: input with .pdf)
-      --format <FMT>     pdf | typst | html (default: from output extension, else pdf)
+      --format <FMT>     pdf | typst | html | docx (default: from output extension, else pdf)
       --theme <THEME>    default | book | path/to/theme.toml
       --paper <PAPER>    a4 | a5 | letter | legal
       --toc / --no-toc   Enable or disable the table of contents
@@ -108,6 +108,7 @@ md2pdf report.md -o out/report.pdf --theme book --paper letter
 md2pdf handbook.md --toc --title "Engineering Handbook"
 md2pdf spec.md --format typst -o spec.typ         # emit Typst source
 md2pdf spec.md -o spec.html                       # standalone HTML page
+md2pdf spec.md -o spec.docx                       # Word document (experimental)
 curl -s https://example.com/doc.md | md2pdf - -o doc.pdf   # pipe via stdin
 md2pdf docs/ -o build/                            # convert a whole tree
 md2pdf validate --strict docs/*.md                # CI linting
@@ -130,7 +131,7 @@ notes, whole `docs/` directories) live in [docs/](docs/).
 ## How it works
 
 ```text
-Markdown ──parser──▶ Document (IR) ──Renderer──▶ bytes (PDF · Typst · HTML)
+Markdown ──parser──▶ Document (IR) ──Renderer──▶ bytes (PDF · Typst · HTML · DOCX)
             comrak      renderer-agnostic
 ```
 

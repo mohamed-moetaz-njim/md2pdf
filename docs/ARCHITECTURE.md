@@ -14,9 +14,9 @@ independently evolvable and testable.
  │              (comrak)   security ▲        ├─ TypstPdf       │
  │                                  │        ├─ TypstSource    │
  │                          asset decisions  ├─ Html           │
- │                                           └─ Docx*          │
+ │                                           └─ Docx           │
  └───────────────────────────────────────────────────────────┘
-                 crates/cli  ── wires args ▶ pipeline ▶ file   (*planned)
+                 crates/cli  ── wires args ▶ pipeline ▶ file
 ```
 
 ## Crate & module layout
@@ -36,6 +36,8 @@ crates/
           lower.rs          # IR → Typst markup (shared by both renderers)
         html/
           mod.rs            # HtmlRenderer (standalone page, theme as CSS)
+        docx/
+          mod.rs            # DocxRenderer (experimental OOXML output)
       lib.rs                # convert() convenience + unit tests
   cli/                      # the binary
     src/
@@ -72,10 +74,10 @@ site) so renderers never chase cross-references. Raw HTML is preserved in the IR
 
 ## Extension points
 
-### Add an output format (e.g. DOCX)
+### Add an output format (e.g. EPUB)
 
-1. Add `OutputFormat::Docx` and its extension in `render/mod.rs`.
-2. Create `render/docx/mod.rs` implementing `Renderer` over the IR.
+1. Add `OutputFormat::Epub` and its extension in `render/mod.rs`.
+2. Create `render/epub/mod.rs` implementing `Renderer` over the IR.
 3. Register it in `render::for_format`.
 
 No change to `parser`, `ir`, or the CLI argument layer beyond exposing the flag.
