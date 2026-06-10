@@ -18,6 +18,16 @@ fn main() -> Result<()> {
         Some(Command::Init { dir }) => commands::init::run(&dir),
         Some(Command::Theme(ThemeCommand::List)) => commands::theme::list(),
         Some(Command::Theme(ThemeCommand::Create { name })) => commands::theme::create(&name),
+        Some(Command::Completions { shell }) => {
+            use clap::CommandFactory;
+            clap_complete::generate(shell, &mut Cli::command(), "md2pdf", &mut std::io::stdout());
+            Ok(())
+        }
+        Some(Command::Man) => {
+            use clap::CommandFactory;
+            clap_mangen::Man::new(Cli::command()).render(&mut std::io::stdout())?;
+            Ok(())
+        }
         None => {
             if cli.convert.input.is_some() {
                 commands::convert::run(cli.convert)
