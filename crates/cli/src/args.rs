@@ -27,10 +27,15 @@ pub struct Cli {
 pub enum Command {
     /// Convert a Markdown file to PDF (or Typst source).
     Convert(ConvertArgs),
-    /// Parse a document and report problems without rendering.
+    /// Parse documents and report problems without rendering.
     Validate {
-        /// Markdown file to validate.
-        input: PathBuf,
+        /// Markdown files to validate.
+        #[arg(required = true)]
+        inputs: Vec<PathBuf>,
+
+        /// Exit with an error if any warnings are found (for CI gating).
+        #[arg(long)]
+        strict: bool,
     },
     /// Check that the local environment can render documents.
     Doctor,
@@ -73,8 +78,12 @@ pub struct ConvertArgs {
     pub paper: Option<PaperArg>,
 
     /// Add a table of contents built from the headings.
-    #[arg(long)]
+    #[arg(long, overrides_with = "no_toc")]
     pub toc: bool,
+
+    /// Disable the table of contents (overrides the config file).
+    #[arg(long, overrides_with = "toc")]
+    pub no_toc: bool,
 
     /// Document title (default: frontmatter title, then first heading).
     #[arg(long)]

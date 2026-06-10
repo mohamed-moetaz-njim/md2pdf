@@ -48,8 +48,13 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         opts.paper = paper.into();
     }
 
-    // Apply remaining CLI overrides (always present when set).
-    opts.toc = args.toc;
+    // Only touch the config/default value when a flag was actually passed,
+    // so `toc = true` in md2pdf.toml survives a plain `md2pdf doc.md`.
+    if args.toc {
+        opts.toc = true;
+    } else if args.no_toc {
+        opts.toc = false;
+    }
     if args.title.is_some() {
         opts.title = args.title.clone();
     }
