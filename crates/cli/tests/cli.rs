@@ -273,6 +273,64 @@ theme = "book"
 }
 
 #[test]
+fn convert_config_toc_applies() {
+    // Regression: `toc = true` in md2pdf.toml must not be clobbered by the
+    // CLI default when no --toc/--no-toc flag is passed.
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let config = dir.path().join("md2pdf.toml");
+    let out = dir.path().join("out.typ");
+
+    std::fs::write(
+        &config,
+        r#"[document]
+toc = true
+"#,
+    )
+    .unwrap();
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(
+        content.contains("#outline"),
+        "config toc = true must produce an outline"
+    );
+}
+
+#[test]
+fn convert_no_toc_overrides_config() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let config = dir.path().join("md2pdf.toml");
+    let out = dir.path().join("out.typ");
+
+    std::fs::write(
+        &config,
+        r#"[document]
+toc = true
+"#,
+    )
+    .unwrap();
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd()
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .arg("--no-toc")
+        .assert()
+        .success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(
+        !content.contains("#outline"),
+        "--no-toc must override config toc = true"
+    );
+}
+
+#[test]
 fn convert_config_invalid_path() {
     cmd()
         .arg(sample_path())
@@ -297,6 +355,43 @@ fn validate_ok() {
         .assert()
         .success()
         .stdout(predicate::str::contains("ok"));
+}
+
+#[test]
+fn validate_multiple_files() {
+    let dir = TempDir::new().unwrap();
+    let a = dir.path().join("a.md");
+    let b = dir.path().join("b.md");
+    std::fs::write(&a, "# A\n\ntext\n").unwrap();
+    std::fs::write(&b, "# B\n\ntext\n").unwrap();
+
+    cmd()
+        .arg("validate")
+        .arg(&a)
+        .arg(&b)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("a.md"))
+        .stdout(predicate::str::contains("b.md"));
+}
+
+#[test]
+fn validate_strict_fails_on_warnings() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    // A remote image is denied by policy and produces a warning.
+    std::fs::write(&input, "# Doc\n\n![x](https://example.com/x.png)\n").unwrap();
+
+    // Without --strict, warnings do not fail the run.
+    cmd().arg("validate").arg(&input).assert().success();
+
+    cmd()
+        .arg("validate")
+        .arg("--strict")
+        .arg(&input)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("strict"));
 }
 
 #[test]

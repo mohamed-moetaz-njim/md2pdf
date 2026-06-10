@@ -80,7 +80,7 @@ Full [installation matrix](docs/INSTALL.md) (`.deb`, `.rpm`, tarball, Action; CO
 ```text
 md2pdf <FILE>                      Convert (default action)
 md2pdf convert <FILE> [options]    Convert explicitly
-md2pdf validate <FILE>             Parse and lint without rendering
+md2pdf validate <FILES...>         Parse and lint without rendering (--strict to gate CI)
 md2pdf doctor                      Check the local environment
 md2pdf init [DIR]                  Scaffold a docs project + CI workflow
 md2pdf theme list                  List built-in themes
@@ -90,7 +90,7 @@ Convert options:
       --format <FMT>     pdf | typst (default: from output extension, else pdf)
       --theme <THEME>    default | book
       --paper <PAPER>    a4 | letter
-      --toc              Add a table of contents
+      --toc / --no-toc   Enable or disable the table of contents
       --title <TITLE>    Override the document title
 ```
 
