@@ -36,7 +36,7 @@ jobs:
           benches/run.sh 200 | tee bench-out/report.txt
 
       - name: Upload benchmark report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: benchmark-report
           path: bench-out/report.txt
