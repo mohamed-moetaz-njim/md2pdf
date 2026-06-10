@@ -32,4 +32,11 @@ jobs:
           cargo run --locked -p md2pdf -- examples/sample.md -o /tmp/sample.pdf
           file /tmp/sample.pdf | grep -q 'PDF document'
           cargo run --locked -p md2pdf -- doctor
-          cargo run --locked -p md2pdf -- validate examples/sample.md
+          cargo run --locked -p md2pdf -- validate --strict examples/sample.md
+
+      - name: Reproducibility gate
+        run: |
+          cargo run --locked -p md2pdf -- examples/sample.md -o /tmp/a.pdf
+          cargo run --locked -p md2pdf -- examples/sample.md -o /tmp/b.pdf
+          cmp /tmp/a.pdf /tmp/b.pdf
+          echo "reproducible: $(sha256sum /tmp/a.pdf | cut -d' ' -f1)"
