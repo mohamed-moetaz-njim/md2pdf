@@ -9,6 +9,13 @@ use clap::Parser;
 use args::{Cli, Command, ThemeCommand};
 
 fn main() -> Result<()> {
+    // Die quietly when a downstream pipe closes (`md2pdf man | head`,
+    // `md2pdf - -o - | …`) instead of panicking on EPIPE.
+    #[cfg(unix)]
+    unsafe {
+        libc::signal(libc::SIGPIPE, libc::SIG_DFL);
+    }
+
     let cli = Cli::parse();
 
     match cli.command {
