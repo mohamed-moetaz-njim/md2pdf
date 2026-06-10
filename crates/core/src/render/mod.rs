@@ -5,6 +5,7 @@
 //! HTML and (future) DOCX back-ends are interchangeable. The CLI selects a
 //! back-end by [`OutputFormat`] and never reaches into renderer internals.
 
+pub mod html;
 pub mod typst;
 
 use crate::ir::Document;
@@ -18,6 +19,8 @@ pub enum OutputFormat {
     /// The generated Typst source (useful for debugging and as a power-user
     /// escape hatch into the wider Typst toolchain).
     Typst,
+    /// A standalone HTML page with the theme inlined as CSS.
+    Html,
 }
 
 impl OutputFormat {
@@ -25,6 +28,7 @@ impl OutputFormat {
         match ext.to_ascii_lowercase().as_str() {
             "pdf" => Some(OutputFormat::Pdf),
             "typ" | "typst" => Some(OutputFormat::Typst),
+            "html" | "htm" => Some(OutputFormat::Html),
             _ => None,
         }
     }
@@ -33,6 +37,7 @@ impl OutputFormat {
         match self {
             OutputFormat::Pdf => "pdf",
             OutputFormat::Typst => "typ",
+            OutputFormat::Html => "html",
         }
     }
 }
@@ -123,5 +128,6 @@ pub fn for_format(format: OutputFormat) -> Box<dyn Renderer> {
     match format {
         OutputFormat::Pdf => Box::new(typst::TypstPdfRenderer),
         OutputFormat::Typst => Box::new(typst::TypstSourceRenderer),
+        OutputFormat::Html => Box::new(html::HtmlRenderer),
     }
 }

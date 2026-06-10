@@ -49,7 +49,7 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 - 🎨 **Themes** — `default` and `book` built in, plus custom TOML themes with inheritance (`md2pdf theme create`)
 - 🧭 **`--toc`** — table of contents from headings; `--paper a4|letter`
 - 🔒 **Secure by default** — no remote fetches, path-traversal protection, size caps, raw HTML dropped
-- 🧱 **Decoupled architecture** — pluggable renderers (PDF, Typst source today; HTML/DOCX planned)
+- 🧱 **Decoupled architecture** — pluggable renderers: PDF, Typst source and standalone HTML
 - 🦀 **Single static binary** — fonts embedded, no runtime dependencies
 
 ## Install
@@ -90,7 +90,7 @@ md2pdf theme create <NAME>         Scaffold a custom theme file
 
 Convert options:
   -o, --output <FILE>    Output path (default: input with .pdf)
-      --format <FMT>     pdf | typst (default: from output extension, else pdf)
+      --format <FMT>     pdf | typst | html (default: from output extension, else pdf)
       --theme <THEME>    default | book | path/to/theme.toml
       --paper <PAPER>    a4 | a5 | letter | legal
       --toc / --no-toc   Enable or disable the table of contents
@@ -127,8 +127,8 @@ notes, whole `docs/` directories) live in [docs/](docs/).
 ## How it works
 
 ```text
-Markdown ──parser──▶ Document (IR) ──Renderer──▶ bytes (PDF · Typst · HTML*)
-            comrak      renderer-agnostic           *planned
+Markdown ──parser──▶ Document (IR) ──Renderer──▶ bytes (PDF · Typst · HTML)
+            comrak      renderer-agnostic
 ```
 
 Parsing and rendering are fully decoupled by an intermediate representation, so new

@@ -42,7 +42,7 @@ The decoupling and security work that everything else depends on.
 
 ## v0.5 — Renderers
 
-- [ ] **HTML renderer** — `render/html/`, `OutputFormat::Html`; reuse IR. Proves the
+- [x] **HTML renderer** — `render/html/`, `OutputFormat::Html`; reuse IR. Proves the
       abstraction a third time and unlocks web previews.
 - [ ] **DOCX renderer (experimental)** — `render/docx/` via an OOXML writer.
 

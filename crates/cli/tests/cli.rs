@@ -434,6 +434,20 @@ fn convert_image_width_lowered() {
 }
 
 #[test]
+fn convert_format_html() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.html");
+    std::fs::write(&input, HELLO_MD).unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(content.starts_with("<!DOCTYPE html>"));
+    assert!(content.contains("<h1"));
+}
+
+#[test]
 fn convert_admonition_renders_pdf() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("doc.md");
