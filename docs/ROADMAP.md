@@ -48,29 +48,37 @@ The decoupling and security work that everything else depends on.
 
 ## v0.6 — Testing & performance
 
-- [ ] **Golden PDF tests** — render fixtures, compare normalized page text +
-      structural hash (PDF bytes aren't stable, so compare extracted text + layout
-      metrics, not raw bytes). `tests/golden/`.
-- [ ] **AST snapshot tests** — `insta` snapshots of `Document` for fixtures.
-- [ ] **Fuzzing** — `cargo-fuzz` target over `parser::parse` (must never panic).
-- [ ] **Malformed-input corpus** — unterminated tables, huge nesting, bad UTF-8.
-- [ ] **Benchmark suite** — `criterion` for parse + lower; `hyperfine` end-to-end vs
-      Pandoc/Typst/mdBook; track startup, memory (`/usr/bin/time -v`), large docs,
-      image-heavy docs. CI publishes a trend.
+- [x] **Golden tests** — the Typst lowering of `examples/sample.md` is checked in
+      (`tests/golden/`), and CI renders twice and byte-compares the PDFs (which
+      *are* stable by construction).
+- [ ] **AST snapshot tests** — `insta` snapshots of `Document` for fixtures
+      (partially covered by the golden lowering test).
+- [x] **Property tests** — proptest over arbitrary inputs (`parse` must never
+      panic); a `cargo-fuzz` target remains possible later.
+- [x] **Malformed-input corpus** — unterminated tables, huge nesting, bad UTF-8,
+      injection attempts (`tests/corpus.rs`).
+- [x] **Benchmark suite** — `criterion` for parse + lower (`cargo bench -p
+      md2pdf-core`); `hyperfine` end-to-end harness in `benches/`. CI trend
+      publishing still open.
 
 ## v1.0 — Stability & ecosystem
 
-- [ ] Stabilise the `md2pdf-core` public API; semver guarantees; `cargo public-api`.
-- [ ] Man pages + shell completions (`clap_mangen`, `clap_complete`).
-- [ ] Published, versioned GitHub Action with prebuilt-binary install.
+- [x] Semver guard: `cargo-semver-checks` gates `md2pdf-core` API changes on PRs
+      against the latest release. Full 1.0 API freeze still pending.
+- [x] Man pages + shell completions (`clap_mangen`, `clap_complete`), shipped in
+      release tarballs.
+- [x] Versioned GitHub Action with prebuilt-binary install (`@v0.3.0`);
+      Marketplace listing still pending.
 - [ ] COPR + PPA automation from the release pipeline.
 - [ ] Theme gallery and example showcase site.
 
 ## Maintainer automation (ongoing)
 
-- [ ] `release-plz` for changelog + version + tag + crates.io publish.
-- [ ] Dependabot/Renovate for deps and Actions.
-- [ ] Issue-form templates + triage labels + stale-bot.
+- [x] `release-plz` wired (inert until `CARGO_REGISTRY_TOKEN` is added); releases
+      also cut from `release/v*` branches or workflow dispatch.
+- [x] Dependabot for cargo deps and Actions; weekly `cargo-audit` and a
+      `cargo-deny` license/source policy in CI.
+- [x] Issue-form templates (bug/feature) with a security-advisory contact link.
 - [ ] Benchmark regression gate on PRs.
 
 ## Tracking
