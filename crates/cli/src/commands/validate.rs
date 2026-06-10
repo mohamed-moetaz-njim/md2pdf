@@ -7,7 +7,18 @@ use md2pdf_core::ir::{Block, Inline};
 use md2pdf_core::render::OutputFormat;
 use md2pdf_core::{Document, Paper, RenderOptions, SecurityPolicy, Theme};
 
-pub fn run(input: &Path) -> Result<()> {
+pub fn run(inputs: &[std::path::PathBuf], strict: bool) -> Result<()> {
+    let mut warnings = 0usize;
+    for input in inputs {
+        warnings += validate_one(input)?;
+    }
+    if strict && warnings > 0 {
+        anyhow::bail!("validation failed: {warnings} warning(s) in strict mode");
+    }
+    Ok(())
+}
+
+fn validate_one(input: &Path) -> Result<usize> {
     let root = super::doc_root(input);
     let security = SecurityPolicy::strict(&root);
     let markdown = super::read_input(input, &security)?;
@@ -40,7 +51,7 @@ pub fn run(input: &Path) -> Result<()> {
             println!("    - {}", d.message);
         }
     }
-    Ok(())
+    Ok(rendered.diagnostics.len())
 }
 
 #[derive(Default)]
