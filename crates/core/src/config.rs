@@ -70,22 +70,32 @@ impl Config {
     /// Only overrides fields that are `Some` in the config; `None` fields
     /// leave the existing value intact. Call this before applying CLI flags.
     pub fn apply_to_render_options(&self, opts: &mut RenderOptions) {
-        let Some(doc) = &self.document else {
-            return;
-        };
-        if let Some(theme) = &doc.theme {
-            if let Some(t) = Theme::from_name(theme) {
-                opts.theme = t;
+        if let Some(doc) = &self.document {
+            if let Some(theme) = &doc.theme {
+                if let Some(t) = Theme::from_name(theme) {
+                    opts.theme = t;
+                }
+            }
+            if let Some(paper) = &doc.paper {
+                opts.paper = Paper::from_name(paper).unwrap_or(opts.paper);
+            }
+            if let Some(toc) = doc.toc {
+                opts.toc = toc;
+            }
+            if doc.title.is_some() {
+                opts.title = doc.title.clone();
             }
         }
-        if let Some(paper) = &doc.paper {
-            opts.paper = Paper::from_name(paper).unwrap_or(opts.paper);
-        }
-        if let Some(toc) = doc.toc {
-            opts.toc = toc;
-        }
-        if doc.title.is_some() {
-            opts.title = doc.title.clone();
+        if let Some(layout) = &self.layout {
+            if layout.header.is_some() {
+                opts.layout.header = layout.header.clone();
+            }
+            if layout.footer.is_some() {
+                opts.layout.footer = layout.footer.clone();
+            }
+            if let Some(pn) = layout.page_numbers {
+                opts.layout.page_numbers = pn;
+            }
         }
     }
 
@@ -135,9 +145,11 @@ impl Config {
 # max_input_bytes = 16777216
 # max_image_bytes = 33554432
 
+# Header and footer accept {title}, {author} and {date} placeholders,
+# resolved from the document's frontmatter.
 # [layout]
-# header = ""
-# footer = ""
+# header = "{title}"
+# footer = "{author}"
 # page_numbers = true
 "##
     }
@@ -278,6 +290,7 @@ unknown = "value"
             paper: Paper::A4,
             toc: false,
             title: None,
+            layout: Default::default(),
             security: SecurityPolicy::strict("."),
         };
         let config = Config {
@@ -304,6 +317,7 @@ unknown = "value"
             paper: Paper::A4,
             toc: false,
             title: Some("CLI Title".into()),
+            layout: Default::default(),
             security: SecurityPolicy::strict("."),
         };
         let config = Config {

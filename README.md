@@ -92,6 +92,9 @@ Convert options:
       --paper <PAPER>    a4 | letter
       --toc / --no-toc   Enable or disable the table of contents
       --title <TITLE>    Override the document title
+      --header <TEXT>    Running page header ({title}, {author}, {date})
+      --footer <TEXT>    Running page footer ({title}, {author}, {date})
+      --no-page-numbers  Hide page numbers
 ```
 
 ### Examples

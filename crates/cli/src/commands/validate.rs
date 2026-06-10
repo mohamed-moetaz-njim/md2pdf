@@ -33,6 +33,7 @@ fn validate_one(input: &Path) -> Result<usize> {
         paper: Paper::A4,
         toc: false,
         title: None,
+        layout: Default::default(),
         security,
     };
     let rendered = md2pdf_core::render::for_format(OutputFormat::Typst).render(&doc, &opts)?;
