@@ -47,6 +47,15 @@ pub enum Command {
     /// Inspect and manage themes.
     #[command(subcommand)]
     Theme(ThemeCommand),
+    /// Generate shell completions for md2pdf.
+    Completions {
+        /// Target shell.
+        #[arg(value_enum)]
+        shell: clap_complete::Shell,
+    },
+    /// Print the man page (troff format) to stdout.
+    #[command(hide = true)]
+    Man,
 }
 
 #[derive(Subcommand, Debug)]

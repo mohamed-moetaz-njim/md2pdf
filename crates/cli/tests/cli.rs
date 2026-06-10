@@ -568,16 +568,13 @@ fn init_idempotent() {
 #[test]
 fn init_defaults_to_current_dir() {
     // Running `md2pdf init` without a path should create files in cwd.
+    // (current_dir on the child, not set_current_dir: tests run in parallel.)
     let dir = TempDir::new().unwrap();
-    let cwd = std::env::current_dir().unwrap();
-    std::env::set_current_dir(dir.path()).unwrap();
 
-    cmd().arg("init").assert().success();
+    cmd().current_dir(dir.path()).arg("init").assert().success();
 
     assert!(dir.path().join("md2pdf.toml").exists());
     assert!(dir.path().join("docs/example.md").exists());
-
-    std::env::set_current_dir(cwd).unwrap();
 }
 
 // ---------------------------------------------------------------------------
@@ -655,10 +652,9 @@ fn theme_unknown_fails() {
 #[test]
 fn theme_create_subcommand() {
     let dir = TempDir::new().unwrap();
-    let cwd = std::env::current_dir().unwrap();
-    std::env::set_current_dir(dir.path()).unwrap();
 
     cmd()
+        .current_dir(dir.path())
         .arg("theme")
         .arg("create")
         .arg("mytheme")
@@ -667,7 +663,29 @@ fn theme_create_subcommand() {
         .stdout(predicate::str::contains("mytheme.toml"));
 
     assert!(dir.path().join("mytheme.toml").exists());
-    std::env::set_current_dir(cwd).unwrap();
+}
+
+// ---------------------------------------------------------------------------
+// completions & man
+// ---------------------------------------------------------------------------
+
+#[test]
+fn completions_bash() {
+    cmd()
+        .arg("completions")
+        .arg("bash")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("md2pdf"));
+}
+
+#[test]
+fn man_page() {
+    cmd()
+        .arg("man")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(".TH"));
 }
 
 #[test]

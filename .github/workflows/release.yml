@@ -9,10 +9,12 @@ env:
 
 jobs:
   package:
-    name: build & package
+    name: build & package (linux x86_64)
     runs-on: ubuntu-latest
     permissions:
-      contents: write # required to create the GitHub Release and upload assets
+      contents: write # create the GitHub Release and upload assets
+      id-token: write # build-provenance attestation
+      attestations: write
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -23,6 +25,14 @@ jobs:
 
       - name: Smoke test
         run: ./target/release/md2pdf examples/sample.md -o /tmp/sample.pdf && file /tmp/sample.pdf
+
+      - name: Generate completions and man page
+        run: |
+          mkdir -p dist
+          for sh in bash zsh fish; do
+            ./target/release/md2pdf completions "$sh" > "dist/md2pdf.$sh"
+          done
+          ./target/release/md2pdf man > dist/md2pdf.1
 
       - name: Install packaging tools
         run: cargo install cargo-deb cargo-generate-rpm
@@ -35,7 +45,22 @@ jobs:
       - name: Build tarball
         run: |
           v="${GITHUB_REF_NAME#v}"
-          tar -C target/release -czf "md2pdf-${v}-x86_64-linux.tar.gz" md2pdf
+          cp target/release/md2pdf dist/
+          tar -C dist -czf "md2pdf-${v}-x86_64-linux.tar.gz" \
+            md2pdf md2pdf.1 md2pdf.bash md2pdf.zsh md2pdf.fish
+
+      - name: Checksums
+        run: |
+          sha256sum target/debian/*.deb target/generate-rpm/*.rpm \
+            md2pdf-*-x86_64-linux.tar.gz > SHA256SUMS
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            target/debian/*.deb
+            target/generate-rpm/*.rpm
+            md2pdf-*-x86_64-linux.tar.gz
 
       - name: Upload artifacts to the release
         uses: softprops/action-gh-release@v2
@@ -44,4 +69,53 @@ jobs:
             target/debian/*.deb
             target/generate-rpm/*.rpm
             md2pdf-*-x86_64-linux.tar.gz
+            SHA256SUMS
           generate_release_notes: true
+
+  package-cross:
+    name: build & package (${{ matrix.label }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            label: macos aarch64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            label: windows x86_64
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --locked -p md2pdf --target ${{ matrix.target }}
+
+      - name: Smoke test
+        shell: bash
+        run: ./target/${{ matrix.target }}/release/md2pdf examples/sample.md -o sample.pdf
+
+      - name: Package
+        shell: bash
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            7z a "md2pdf-${v}-${{ matrix.target }}.zip" \
+              ./target/${{ matrix.target }}/release/md2pdf.exe
+          else
+            tar -C "target/${{ matrix.target }}/release" \
+              -czf "md2pdf-${v}-${{ matrix.target }}.tar.gz" md2pdf
+          fi
+
+      - name: Upload artifacts to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            md2pdf-*-${{ matrix.target }}.*
+          generate_release_notes: false

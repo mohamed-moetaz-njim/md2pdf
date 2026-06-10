@@ -14,6 +14,8 @@ homepage = "https://github.com/mohamed-moetaz-njim/md2pdf"
 [workspace.dependencies]
 anyhow = "1.0.102"
 clap = { version = "4.6.1", features = ["derive"] }
+clap_complete = "4.5"
+clap_mangen = "0.2"
 comrak = "0.52.0"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3.12"
