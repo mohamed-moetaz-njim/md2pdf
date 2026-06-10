@@ -97,6 +97,12 @@ impl Stats {
                 }
                 Block::BlockQuote(blocks) => self.walk_blocks(blocks),
                 Block::Admonition { blocks, .. } => self.walk_blocks(blocks),
+                Block::DefinitionList(items) => {
+                    for item in items {
+                        self.walk_inlines(&item.term);
+                        self.walk_blocks(&item.details);
+                    }
+                }
                 Block::List { items, .. } => {
                     for item in items {
                         self.walk_blocks(&item.blocks);

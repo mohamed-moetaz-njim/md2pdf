@@ -59,6 +59,8 @@ pub enum Block {
         rows: Vec<Vec<Vec<Inline>>>,
     },
     ThematicBreak,
+    /// A definition list: `term` lines followed by `: details` lines.
+    DefinitionList(Vec<DefinitionItem>),
     /// A GitHub-style alert (`> [!NOTE]` …), rendered as a callout box.
     Admonition {
         kind: AdmonitionKind,
@@ -85,6 +87,13 @@ pub enum AdmonitionKind {
 pub struct ListItem {
     pub task: Option<bool>,
     pub blocks: Vec<Block>,
+}
+
+/// One term/details pair of a [`Block::DefinitionList`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct DefinitionItem {
+    pub term: Vec<Inline>,
+    pub details: Vec<Block>,
 }
 
 /// Inline (span-level) content.

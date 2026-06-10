@@ -6,7 +6,7 @@
 
 use std::fmt::Write;
 
-use crate::ir::{AdmonitionKind, Align, Block, Document, Inline, ListItem, Meta};
+use crate::ir::{AdmonitionKind, Align, Block, DefinitionItem, Document, Inline, ListItem, Meta};
 use crate::render::{Diagnostic, RenderOptions};
 use crate::security::AssetDecision;
 use crate::theme::ThemeSpec;
@@ -187,6 +187,7 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
         Block::ThematicBreak => {
             s.push_str("#line(length: 100%, stroke: 0.5pt + luma(180))\n#v(0.3em)\n\n");
         }
+        Block::DefinitionList(items) => emit_definition_list(items, s, ctx),
         Block::Admonition {
             kind,
             title,
@@ -199,6 +200,18 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
             ));
         }
     }
+}
+
+fn emit_definition_list(items: &[DefinitionItem], s: &mut String, ctx: &mut Ctx) {
+    s.push_str("#terms(\n");
+    for item in items {
+        s.push_str("  terms.item([");
+        emit_inlines(&item.term, s, ctx);
+        s.push_str("], [");
+        emit_item_body(&item.details, s, ctx);
+        s.push_str("]),\n");
+    }
+    s.push_str(")\n\n");
 }
 
 fn emit_admonition(

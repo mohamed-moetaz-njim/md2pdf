@@ -112,6 +112,8 @@ table {{ border-collapse: collapse; margin: 1em 0; }}
 th, td {{ border: 1px solid #bbb; padding: 0.35em 0.7em; }}
 th {{ background: #f5f6f7; }}
 img {{ max-width: 100%; }}
+dt {{ font-weight: bold; }}
+dd {{ margin: 0 0 0.5em 1.5em; }}
 hr {{ border: 0; border-top: 1px solid #b4b4b4; }}
 .admonition {{ border-left: 3px solid; border-radius: 3px; padding: 10px 14px;
   margin: 1em 0; }}
@@ -228,6 +230,19 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
             s.push_str("</blockquote>\n");
         }
         Block::List { ordered, items } => emit_list(*ordered, items, s, ctx),
+        Block::DefinitionList(items) => {
+            s.push_str("<dl>\n");
+            for item in items {
+                s.push_str("<dt>");
+                emit_inlines(&item.term, s, ctx);
+                s.push_str("</dt>\n<dd>");
+                for b in &item.details {
+                    emit_block(b, s, ctx);
+                }
+                s.push_str("</dd>\n");
+            }
+            s.push_str("</dl>\n");
+        }
         Block::Table { align, head, rows } => emit_table(align, head, rows, s, ctx),
         Block::ThematicBreak => s.push_str("<hr>\n"),
         Block::Admonition {

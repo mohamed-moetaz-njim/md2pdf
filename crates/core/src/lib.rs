@@ -220,6 +220,27 @@ mod tests {
     }
 
     #[test]
+    fn definition_list_lowers_to_terms() {
+        let md = "Apple\n: A fruit.\n\nRust\n: A language.\n: Also an oxide.\n";
+        let doc = parser::parse(md);
+        let Some(Block::DefinitionList(items)) = doc.blocks.first() else {
+            panic!("expected definition list, got {:?}", doc.blocks.first());
+        };
+        assert_eq!(items.len(), 2);
+        assert_eq!(crate::ir::inline_text(&items[0].term), "Apple");
+
+        let out = convert(md, &opts("."), OutputFormat::Typst).unwrap();
+        let src = String::from_utf8(out.bytes).unwrap();
+        assert!(src.contains("#terms("), "typst terms: {src}");
+        assert!(src.contains("terms.item("), "typst terms items: {src}");
+
+        let out = convert(md, &opts("."), OutputFormat::Html).unwrap();
+        let html = String::from_utf8(out.bytes).unwrap();
+        assert!(html.contains("<dt>Apple</dt>"), "html dt: {html}");
+        assert!(html.contains("<dd>"), "html dd: {html}");
+    }
+
+    #[test]
     fn typst_source_render_is_deterministic() {
         let md = "# Title\n\nHello **world**.";
         let a = convert(md, &opts("."), OutputFormat::Typst).unwrap();

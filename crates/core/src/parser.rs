@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 use comrak::nodes::{AstNode, NodeValue, TableAlignment};
 use comrak::{Arena, Options, parse_document};
 
-use crate::ir::{AdmonitionKind, Align, Block, Document, Inline, ListItem, Meta};
+use crate::ir::{AdmonitionKind, Align, Block, DefinitionItem, Document, Inline, ListItem, Meta};
 
 type Node<'a> = &'a AstNode<'a>;
 
@@ -46,6 +46,7 @@ fn options() -> Options<'static> {
     o.extension.autolink = true;
     o.extension.superscript = true;
     o.extension.alerts = true;
+    o.extension.description_lists = true;
     o
 }
 
@@ -161,6 +162,7 @@ fn block<'a>(node: Node<'a>, fns: &Footnotes<'a>) -> Option<Block> {
             items: node.children().map(|item| list_item(item, fns)).collect(),
         }),
         NodeValue::Table(t) => Some(table(node, &t.alignments, fns)),
+        NodeValue::DescriptionList => Some(definition_list(node, fns)),
         NodeValue::Alert(a) => Some(Block::Admonition {
             kind: match a.alert_type {
                 comrak::nodes::AlertType::Note => AdmonitionKind::Note,
@@ -189,6 +191,41 @@ fn block<'a>(node: Node<'a>, fns: &Footnotes<'a>) -> Option<Block> {
             }
         }
     }
+}
+
+fn definition_list<'a>(node: Node<'a>, fns: &Footnotes<'a>) -> Block {
+    let mut items: Vec<DefinitionItem> = Vec::new();
+    for item in node.children() {
+        // Each DescriptionItem holds a DescriptionTerm and DescriptionDetails.
+        let mut term = Vec::new();
+        let mut details = Vec::new();
+        for part in item.children() {
+            match &part.data.borrow().value {
+                NodeValue::DescriptionTerm => {
+                    // The term's inline content arrives wrapped in paragraphs.
+                    for child in part.children() {
+                        match &child.data.borrow().value {
+                            NodeValue::Paragraph => term.extend(inlines(child, fns)),
+                            _ => term.extend(inlines(part, fns)),
+                        }
+                    }
+                }
+                NodeValue::DescriptionDetails => {
+                    details.extend(part.children().filter_map(|n| block(n, fns)));
+                }
+                _ => {}
+            }
+        }
+        // comrak emits one DescriptionItem per `: details` line; lines after
+        // the first carry an empty term and belong to the previous entry.
+        match items.last_mut() {
+            Some(prev) if crate::ir::inline_text(&term).trim().is_empty() => {
+                prev.details.extend(details);
+            }
+            _ => items.push(DefinitionItem { term, details }),
+        }
+    }
+    Block::DefinitionList(items)
 }
 
 fn list_item<'a>(item: Node<'a>, fns: &Footnotes<'a>) -> ListItem {
