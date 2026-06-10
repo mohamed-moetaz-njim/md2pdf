@@ -42,7 +42,9 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 
 ## Features
 
-- 📝 **CommonMark + GitHub flavor** — tables, task lists, strikethrough, footnotes, autolinks
+- 📝 **CommonMark + GitHub flavor** — tables, task lists, strikethrough, footnotes, autolinks, alerts (`> [!NOTE]`)
+- 🖼️ **Image sizing** — `![logo](logo.png){width=50%}`
+- 📄 **Page furniture** — `--header`/`--footer` with `{title}`/`{author}`/`{date}` placeholders, page numbers
 - 🧾 **Frontmatter** — `title`, `author`, `date`, `subtitle` and arbitrary metadata
 - 🎨 **Themes** — `default` and `book`, with a data-driven theme model
 - 🧭 **`--toc`** — table of contents from headings; `--paper a4|letter`
@@ -89,7 +91,7 @@ Convert options:
   -o, --output <FILE>    Output path (default: input with .pdf)
       --format <FMT>     pdf | typst (default: from output extension, else pdf)
       --theme <THEME>    default | book
-      --paper <PAPER>    a4 | letter
+      --paper <PAPER>    a4 | a5 | letter | legal
       --toc / --no-toc   Enable or disable the table of contents
       --title <TITLE>    Override the document title
       --header <TEXT>    Running page header ({title}, {author}, {date})

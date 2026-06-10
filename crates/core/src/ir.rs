@@ -59,8 +59,25 @@ pub enum Block {
         rows: Vec<Vec<Vec<Inline>>>,
     },
     ThematicBreak,
+    /// A GitHub-style alert (`> [!NOTE]` …), rendered as a callout box.
+    Admonition {
+        kind: AdmonitionKind,
+        /// Display title; defaults to the kind's name when not overridden.
+        title: String,
+        blocks: Vec<Block>,
+    },
     /// Raw HTML, dropped by safe renderers (see the security model).
     RawHtml(String),
+}
+
+/// The five GitHub alert kinds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AdmonitionKind {
+    Note,
+    Tip,
+    Important,
+    Warning,
+    Caution,
 }
 
 /// A single list item; `task` is `Some(checked)` for GitHub task-list items.
@@ -86,6 +103,9 @@ pub enum Inline {
     Image {
         src: String,
         alt: String,
+        /// Display width from `{width=…}` after the image, e.g. `50%`, `4cm`.
+        /// Always a validated dimension (number + `%`/`cm`/`mm`/`in`/`pt`/`em`).
+        width: Option<String>,
     },
     /// A footnote whose definition has been resolved and inlined.
     Footnote(Vec<Block>),

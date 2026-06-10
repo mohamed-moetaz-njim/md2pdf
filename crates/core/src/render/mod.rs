@@ -41,14 +41,18 @@ impl OutputFormat {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Paper {
     A4,
+    A5,
     Letter,
+    Legal,
 }
 
 impl Paper {
     pub fn typst_name(self) -> &'static str {
         match self {
             Paper::A4 => "a4",
+            Paper::A5 => "a5",
             Paper::Letter => "us-letter",
+            Paper::Legal => "us-legal",
         }
     }
 }

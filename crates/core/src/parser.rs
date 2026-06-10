@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use comrak::nodes::{AstNode, NodeValue, TableAlignment};
 use comrak::{Arena, Options, parse_document};
 
-use crate::ir::{Align, Block, Document, Inline, ListItem, Meta};
+use crate::ir::{AdmonitionKind, Align, Block, Document, Inline, ListItem, Meta};
 
 type Node<'a> = &'a AstNode<'a>;
 
@@ -35,6 +35,7 @@ fn options() -> Options<'static> {
     o.extension.footnotes = true;
     o.extension.autolink = true;
     o.extension.superscript = true;
+    o.extension.alerts = true;
     o
 }
 
@@ -139,6 +140,20 @@ fn block<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Option<Block> {
             items: node.children().map(|item| list_item(item, fns)).collect(),
         }),
         NodeValue::Table(t) => Some(table(node, &t.alignments, fns)),
+        NodeValue::Alert(a) => Some(Block::Admonition {
+            kind: match a.alert_type {
+                comrak::nodes::AlertType::Note => AdmonitionKind::Note,
+                comrak::nodes::AlertType::Tip => AdmonitionKind::Tip,
+                comrak::nodes::AlertType::Important => AdmonitionKind::Important,
+                comrak::nodes::AlertType::Warning => AdmonitionKind::Warning,
+                comrak::nodes::AlertType::Caution => AdmonitionKind::Caution,
+            },
+            title: a
+                .title
+                .clone()
+                .unwrap_or_else(|| a.alert_type.default_title().to_string()),
+            blocks: node.children().filter_map(|n| block(n, fns)).collect(),
+        }),
         NodeValue::ThematicBreak => Some(Block::ThematicBreak),
         NodeValue::HtmlBlock(h) => Some(Block::RawHtml(h.literal)),
         // Footnote definitions are inlined at their references; descend into
@@ -196,7 +211,55 @@ fn inlines<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>) -> Vec<Inline> {
     for child in node.children() {
         inline(child, fns, &mut out);
     }
+    attach_image_attrs(&mut out);
+    out.retain(|i| !matches!(i, Inline::Text(t) if t.is_empty()));
     out
+}
+
+/// Support `![alt](src){width=50%}`. The attribute block is not Markdown:
+/// comrak surfaces it as a plain text node right after the image, so fold a
+/// recognised `{…}` group into the preceding [`Inline::Image`].
+fn attach_image_attrs(out: &mut [Inline]) {
+    for i in 1..out.len() {
+        let (head, tail) = out.split_at_mut(i);
+        let Some(Inline::Image { width, .. }) = head.last_mut() else {
+            continue;
+        };
+        let Inline::Text(t) = &mut tail[0] else {
+            continue;
+        };
+        let Some(rest) = t.strip_prefix('{') else {
+            continue;
+        };
+        let Some((attrs, after)) = rest.split_once('}') else {
+            continue;
+        };
+        if let Some(w) = parse_width_attr(attrs) {
+            *width = Some(w);
+            *t = after.to_string();
+        }
+    }
+}
+
+fn parse_width_attr(attrs: &str) -> Option<String> {
+    for part in attrs.split_whitespace() {
+        if let Some(v) = part.strip_prefix("width=") {
+            let v = v.trim_matches('"');
+            if is_valid_dimension(v) {
+                return Some(v.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// A safe-to-interpolate dimension: a number followed by a known unit.
+fn is_valid_dimension(v: &str) -> bool {
+    ["%", "cm", "mm", "in", "pt", "em"].iter().any(|unit| {
+        v.strip_suffix(unit).is_some_and(|n| {
+            !n.is_empty() && n.parse::<f64>().is_ok_and(|x| x.is_finite() && x >= 0.0)
+        })
+    })
 }
 
 fn inline<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>, out: &mut Vec<Inline>) {
@@ -217,6 +280,7 @@ fn inline<'a>(node: Node<'a>, fns: &HashMap<String, Node<'a>>, out: &mut Vec<Inl
         NodeValue::Image(l) => out.push(Inline::Image {
             src: l.url,
             alt: crate::ir::inline_text(&inlines(node, fns)),
+            width: None,
         }),
         NodeValue::FootnoteReference(r) => {
             if let Some(def) = fns.get(&r.name) {

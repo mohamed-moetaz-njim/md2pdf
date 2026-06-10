@@ -160,7 +160,9 @@ impl Paper {
     pub fn from_name(name: &str) -> Option<Paper> {
         match name {
             "a4" => Some(Paper::A4),
+            "a5" => Some(Paper::A5),
             "letter" => Some(Paper::Letter),
+            "legal" => Some(Paper::Legal),
             _ => None,
         }
     }
@@ -368,7 +370,9 @@ unknown = "value"
     #[test]
     fn paper_from_name() {
         assert_eq!(Paper::from_name("a4"), Some(Paper::A4));
+        assert_eq!(Paper::from_name("a5"), Some(Paper::A5));
         assert_eq!(Paper::from_name("letter"), Some(Paper::Letter));
-        assert_eq!(Paper::from_name("legal"), None);
+        assert_eq!(Paper::from_name("legal"), Some(Paper::Legal));
+        assert_eq!(Paper::from_name("tabloid"), None);
     }
 }

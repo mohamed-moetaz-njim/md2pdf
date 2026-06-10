@@ -6,7 +6,7 @@
 
 use std::fmt::Write;
 
-use crate::ir::{Align, Block, Document, Inline, ListItem, Meta};
+use crate::ir::{AdmonitionKind, Align, Block, Document, Inline, ListItem, Meta};
 use crate::render::{Diagnostic, RenderOptions};
 use crate::security::AssetDecision;
 use crate::theme::ThemeSpec;
@@ -186,6 +186,11 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
         Block::ThematicBreak => {
             s.push_str("#line(length: 100%, stroke: 0.5pt + luma(180))\n#v(0.3em)\n\n");
         }
+        Block::Admonition {
+            kind,
+            title,
+            blocks,
+        } => emit_admonition(*kind, title, blocks, s, ctx),
         Block::RawHtml(_) => {
             // Dropped by policy; record it once so `validate` can report it.
             ctx.diags.push(Diagnostic::new(
@@ -193,6 +198,37 @@ fn emit_block(block: &Block, s: &mut String, ctx: &mut Ctx) {
             ));
         }
     }
+}
+
+fn emit_admonition(
+    kind: AdmonitionKind,
+    title: &str,
+    blocks: &[Block],
+    s: &mut String,
+    ctx: &mut Ctx,
+) {
+    // GitHub-style accent + light tint per kind.
+    let (accent, fill) = match kind {
+        AdmonitionKind::Note => ("#0969da", "#f0f6ff"),
+        AdmonitionKind::Tip => ("#1a7f37", "#effaf1"),
+        AdmonitionKind::Important => ("#8250df", "#f6f0fe"),
+        AdmonitionKind::Warning => ("#9a6700", "#fff8e5"),
+        AdmonitionKind::Caution => ("#cf222e", "#ffefef"),
+    };
+    let _ = writeln!(
+        s,
+        "#block(width: 100%, fill: rgb(\"{fill}\"), stroke: (left: 3pt + rgb(\"{accent}\")), inset: 10pt, radius: 3pt)["
+    );
+    let _ = writeln!(
+        s,
+        "  #text(weight: \"bold\", fill: rgb(\"{accent}\"))[#\"{}\"]",
+        esc(title)
+    );
+    s.push_str("  #parbreak()\n");
+    for b in blocks {
+        emit_block(b, s, ctx);
+    }
+    s.push_str("]\n\n");
 }
 
 fn emit_code(lang: Option<&str>, code: &str, s: &mut String, ctx: &mut Ctx) {
@@ -310,7 +346,7 @@ fn emit_inline(inline: &Inline, s: &mut String, ctx: &mut Ctx) {
             emit_inlines(content, s, ctx);
             s.push(']');
         }
-        Inline::Image { src, alt } => emit_image(src, alt, s, ctx),
+        Inline::Image { src, alt, width } => emit_image(src, alt, width.as_deref(), s, ctx),
         Inline::Footnote(blocks) => {
             s.push_str("#footnote[");
             for b in blocks {
@@ -327,10 +363,19 @@ fn wrap(open: &str, content: &[Inline], s: &mut String, ctx: &mut Ctx) {
     s.push(']');
 }
 
-fn emit_image(src: &str, alt: &str, s: &mut String, ctx: &mut Ctx) {
+fn emit_image(src: &str, alt: &str, width: Option<&str>, s: &mut String, ctx: &mut Ctx) {
     match ctx.opts.security.resolve_image(src) {
         AssetDecision::Allow(path) => {
-            let _ = write!(s, "#image(\"{}\")", esc(&path));
+            // `width` is parser-validated (number + unit), safe outside a
+            // string literal.
+            match width {
+                Some(w) => {
+                    let _ = write!(s, "#image(\"{}\", width: {w})", esc(&path));
+                }
+                None => {
+                    let _ = write!(s, "#image(\"{}\")", esc(&path));
+                }
+            }
         }
         AssetDecision::Deny(reason) => {
             ctx.diags.push(Diagnostic::new(reason));
