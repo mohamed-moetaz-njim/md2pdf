@@ -146,6 +146,7 @@ impl From<PaperArg> for Paper {
 pub enum FormatArg {
     Pdf,
     Typst,
+    Html,
 }
 
 impl From<FormatArg> for OutputFormat {
@@ -153,6 +154,7 @@ impl From<FormatArg> for OutputFormat {
         match value {
             FormatArg::Pdf => OutputFormat::Pdf,
             FormatArg::Typst => OutputFormat::Typst,
+            FormatArg::Html => OutputFormat::Html,
         }
     }
 }
