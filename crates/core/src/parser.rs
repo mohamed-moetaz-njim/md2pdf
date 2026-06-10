@@ -13,8 +13,17 @@ type Node<'a> = &'a AstNode<'a>;
 
 /// Parse a Markdown string (optionally with a leading YAML frontmatter block)
 /// into a [`Document`].
+///
+/// CRLF line endings are normalized to LF first, so a document checked out
+/// with Windows line endings produces byte-identical output to its LF twin —
+/// reproducibility must not depend on the platform's checkout convention.
 pub fn parse(input: &str) -> Document {
-    let (meta, body) = split_frontmatter(input);
+    let input: std::borrow::Cow<str> = if input.contains('\r') {
+        std::borrow::Cow::Owned(input.replace("\r\n", "\n"))
+    } else {
+        std::borrow::Cow::Borrowed(input)
+    };
+    let (meta, body) = split_frontmatter(&input);
 
     let arena = Arena::new();
     let root = parse_document(&arena, body, &options());

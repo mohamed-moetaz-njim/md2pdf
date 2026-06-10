@@ -1,0 +1,6 @@
+# md2pdf produces byte-reproducible output; checkouts must be byte-identical
+# on every platform too. Force LF for all text files.
+* text=auto eol=lf
+
+*.png binary
+*.pdf binary
