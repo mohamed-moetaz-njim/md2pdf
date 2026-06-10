@@ -21,6 +21,7 @@ examples=(
   "release-notes:default:"
   "whitepaper:book:--toc"
   "developer-handbook:book:--toc"
+  "feature-tour:theme.toml:--toc --header {title}"
 )
 
 for spec in "${examples[@]}"; do

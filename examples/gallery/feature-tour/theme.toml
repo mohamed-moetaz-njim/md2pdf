@@ -1,0 +1,8 @@
+# Custom theme for the feature-tour example: default base, teal accents.
+base = "default"
+
+heading_color = "#0e6e61"
+accent_color = "#0e6e61"
+link_color = "#0b7285"
+code_stroke = "#c3e2dd"
+code_fill = "#f2f9f8"

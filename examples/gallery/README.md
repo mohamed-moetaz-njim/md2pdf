@@ -15,6 +15,7 @@ page of each PDF.
 | **Release notes** | Sectioned changelog, breaking-changes table | [md](release-notes/source.md) | [pdf](release-notes/release-notes.pdf) | [png](release-notes/release-notes.png) |
 | **Whitepaper** | Book theme, TOC, properties table, footnotes, diagram | [md](whitepaper/source.md) | [pdf](whitepaper/whitepaper.pdf) | [png](whitepaper/whitepaper.png) |
 | **Developer handbook** | Book theme, ordered lists, review table, runbook quote | [md](developer-handbook/source.md) | [pdf](developer-handbook/developer-handbook.pdf) | [png](developer-handbook/developer-handbook.png) |
+| **Feature tour** | Custom TOML theme, page header, alerts, definition lists (new in 0.3) | [md](feature-tour/source.md) | [pdf](feature-tour/feature-tour.pdf) | [png](feature-tour/feature-tour.png) |
 
 ## Reproduce any of these
 
