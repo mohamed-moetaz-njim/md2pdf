@@ -32,6 +32,88 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         .input
         .clone()
         .context("no input file given (try `md2pdf <file.md>` or `md2pdf --help`)")?;
+    if input.as_os_str() != "-" && input.is_dir() {
+        return run_dir(args, &input);
+    }
+    run_one(args)
+}
+
+/// Convert every Markdown file under `dir` (recursively, skipping dot-dirs).
+///
+/// With `-o <DIR>` outputs mirror the input tree under that directory;
+/// otherwise each file converts alongside its source.
+fn run_dir(args: ConvertArgs, dir: &Path) -> Result<()> {
+    if args.output.as_ref().is_some_and(|o| o.as_os_str() == "-") {
+        anyhow::bail!("cannot stream a directory conversion to stdout");
+    }
+    let mut files = Vec::new();
+    collect_markdown(dir, &mut files)?;
+    if files.is_empty() {
+        anyhow::bail!("no Markdown files found under {}", dir.display());
+    }
+    let ext = args
+        .format
+        .map(OutputFormat::from)
+        .unwrap_or(OutputFormat::Pdf)
+        .extension();
+
+    let mut failures = 0usize;
+    for file in &files {
+        let mut file_args = args.clone();
+        file_args.input = Some(file.clone());
+        file_args.output = match &args.output {
+            Some(out_dir) => {
+                let rel = file.strip_prefix(dir).expect("file is under dir");
+                let target = out_dir.join(rel).with_extension(ext);
+                if let Some(parent) = target.parent() {
+                    std::fs::create_dir_all(parent)
+                        .with_context(|| format!("could not create {}", parent.display()))?;
+                }
+                Some(target)
+            }
+            None => None,
+        };
+        if let Err(e) = run_one(file_args) {
+            eprintln!("error: {}: {e:#}", file.display());
+            failures += 1;
+        }
+    }
+    if failures > 0 {
+        anyhow::bail!("{failures} of {} file(s) failed", files.len());
+    }
+    eprintln!("converted {} file(s)", files.len());
+    Ok(())
+}
+
+fn collect_markdown(dir: &Path, out: &mut Vec<std::path::PathBuf>) -> Result<()> {
+    let mut entries: Vec<_> = std::fs::read_dir(dir)
+        .with_context(|| format!("could not read {}", dir.display()))?
+        .collect::<std::io::Result<_>>()?;
+    // Sorted traversal keeps output and error ordering deterministic.
+    entries.sort_by_key(|e| e.file_name());
+    for entry in entries {
+        let path = entry.path();
+        let name = entry.file_name();
+        if name.to_string_lossy().starts_with('.') {
+            continue;
+        }
+        if path.is_dir() {
+            collect_markdown(&path, out)?;
+        } else if path
+            .extension()
+            .is_some_and(|e| e == "md" || e == "markdown")
+        {
+            out.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn run_one(args: ConvertArgs) -> Result<()> {
+    let input = args
+        .input
+        .clone()
+        .context("no input file given (try `md2pdf <file.md>` or `md2pdf --help`)")?;
 
     // `md2pdf -` reads Markdown from stdin (assets resolve against the cwd).
     let from_stdin = input.as_os_str() == "-";

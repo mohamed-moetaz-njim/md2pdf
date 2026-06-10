@@ -80,7 +80,7 @@ Full [installation matrix](docs/INSTALL.md) (`.deb`, `.rpm`, tarball, Action; CO
 ## Usage
 
 ```text
-md2pdf <FILE>                      Convert (default action)
+md2pdf <FILE|DIR|->                Convert a file, a directory tree, or stdin
 md2pdf convert <FILE> [options]    Convert explicitly
 md2pdf validate <FILES...>         Parse and lint without rendering (--strict to gate CI)
 md2pdf doctor                      Check the local environment
@@ -109,6 +109,7 @@ md2pdf handbook.md --toc --title "Engineering Handbook"
 md2pdf spec.md --format typst -o spec.typ         # emit Typst source
 md2pdf spec.md -o spec.html                       # standalone HTML page
 curl -s https://example.com/doc.md | md2pdf - -o doc.pdf   # pipe via stdin
+md2pdf docs/ -o build/                            # convert a whole tree
 md2pdf validate --strict docs/*.md                # CI linting
 ```
 

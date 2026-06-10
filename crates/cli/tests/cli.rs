@@ -524,6 +524,82 @@ fn convert_definition_list_renders_pdf() {
 }
 
 // ---------------------------------------------------------------------------
+// directory conversion
+// ---------------------------------------------------------------------------
+
+#[test]
+fn convert_directory_alongside() {
+    let dir = TempDir::new().unwrap();
+    let docs = dir.path().join("docs");
+    std::fs::create_dir_all(docs.join("sub")).unwrap();
+    std::fs::write(docs.join("a.md"), HELLO_MD).unwrap();
+    std::fs::write(docs.join("sub/b.md"), HELLO_MD).unwrap();
+    std::fs::write(docs.join("notes.txt"), "not markdown").unwrap();
+
+    cmd()
+        .arg(&docs)
+        .arg("--format")
+        .arg("typst")
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("converted 2 file(s)"));
+
+    assert!(docs.join("a.typ").exists());
+    assert!(docs.join("sub/b.typ").exists());
+    assert!(!docs.join("notes.typ").exists());
+}
+
+#[test]
+fn convert_directory_to_output_dir() {
+    let dir = TempDir::new().unwrap();
+    let docs = dir.path().join("docs");
+    let out = dir.path().join("out");
+    std::fs::create_dir_all(docs.join("sub")).unwrap();
+    std::fs::write(docs.join("a.md"), HELLO_MD).unwrap();
+    std::fs::write(docs.join("sub/b.md"), HELLO_MD).unwrap();
+
+    cmd()
+        .arg(&docs)
+        .arg("-o")
+        .arg(&out)
+        .arg("--format")
+        .arg("typst")
+        .assert()
+        .success();
+
+    assert!(out.join("a.typ").exists(), "mirrors the tree under -o");
+    assert!(out.join("sub/b.typ").exists());
+}
+
+#[test]
+fn convert_empty_directory_fails() {
+    let dir = TempDir::new().unwrap();
+    cmd()
+        .arg(dir.path())
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("no Markdown files"));
+}
+
+#[cfg(unix)]
+#[test]
+fn broken_pipe_exits_quietly() {
+    // `md2pdf man | head -n1` must not panic with an EPIPE backtrace.
+    let bin = assert_cmd::cargo::cargo_bin("md2pdf");
+    let output = std::process::Command::new("sh")
+        .arg("-c")
+        .arg(format!("'{}' man | head -n 1", bin.display()))
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "pipeline must succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.contains("panicked") && !stderr.contains("Broken pipe"),
+        "no EPIPE noise on stderr: {stderr}"
+    );
+}
+
+// ---------------------------------------------------------------------------
 // validate
 // ---------------------------------------------------------------------------
 
