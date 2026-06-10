@@ -194,7 +194,12 @@ fn emit_list(ordered: bool, items: &[ListItem], s: &mut String, ctx: &mut Ctx) {
 }
 
 fn emit_item_body(blocks: &[Block], s: &mut String, ctx: &mut Ctx) {
-    for b in blocks {
+    for (i, b) in blocks.iter().enumerate() {
+        if i > 0 {
+            // Successive blocks in one item would otherwise run together,
+            // since paragraphs are emitted here without their usual "\n\n".
+            s.push_str("#parbreak()");
+        }
         match b {
             Block::Paragraph(content) => emit_inlines(content, s, ctx),
             other => emit_block(other, s, ctx),
