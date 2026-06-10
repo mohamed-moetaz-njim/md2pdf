@@ -30,7 +30,7 @@ The decoupling and security work that everything else depends on.
       bundle; `--bundle` for self-contained artifacts.
 - [x] **Image sizing** — width/attributes via `{width=}` syntax in IR `Image`.
 - [x] **Admonitions** — GitHub alerts (`> [!NOTE]` …) as colored callouts.
-- [ ] **Definition lists** — extend IR + parser + renderers.
+- [x] **Definition lists** — extend IR + parser + renderers.
 
 ## v0.4 — Diagrams & highlighting
 

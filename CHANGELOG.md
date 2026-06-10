@@ -6,6 +6,45 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-10
+
+### Added
+- **HTML renderer**: `--format html` (or a `.html` output path) emits a
+  standalone page with the theme inlined as CSS, sharing the IR and the
+  deny-by-default security posture with the PDF back-end.
+- **Page furniture**: `[layout]` config and `--header`/`--footer`/
+  `--no-page-numbers` flags, with `{title}`/`{author}`/`{date}` placeholders.
+- **Custom TOML themes with inheritance**: `--theme file.toml` starts from a
+  built-in `base` and overrides fields; `md2pdf theme create <name>` scaffolds
+  one. Colors are validated as hex before reaching the renderer.
+- **GitHub alerts** (`> [!NOTE]` …) render as colored callout boxes.
+- **Definition lists** (`term` / `: details`) in all renderers.
+- **Image sizing**: `![alt](src){width=50%}` (validated number + unit).
+- **Paper sizes** `a5` and `legal`.
+- **stdin/stdout piping**: `md2pdf -` reads stdin; `-o -` streams to stdout.
+- `validate` accepts multiple files and gates CI with `--strict`.
+- `completions <shell>` subcommand; release tarballs ship man page +
+  bash/zsh/fish completions.
+- Criterion micro-benchmarks (`cargo bench -p md2pdf-core`).
+- CI: linux/macos/windows test matrix, MSRV job, weekly `cargo-audit`, and a
+  byte-level reproducibility gate. Releases gain SHA256SUMS, build-provenance
+  attestation and macOS/Windows binaries.
+
+### Fixed
+- Stale committed `Cargo.lock` that would have failed the next `--locked`
+  release build; CI now passes `--locked` everywhere.
+- `toc = true` in `md2pdf.toml` was silently overridden by the CLI default;
+  `--no-toc` added for explicit override.
+- Stack overflow on self-referential footnote definitions (cycle guard).
+- Output bytes depended on the input's line endings; CRLF is normalized so
+  conversion is reproducible across platforms.
+- Successive paragraphs inside one list item no longer run together.
+
+### Changed
+- Declared MSRV raised to 1.89 (required by the Typst engine; 1.85 was never
+  buildable).
+- `ThemeSpec` fields are owned strings; `Theme` gained a `Custom` variant.
+
 ## [0.2.2] - 2026-06-05
 
 ### Added

@@ -42,7 +42,7 @@ Full methodology and the comparison matrix: [docs/BENCHMARKS.md](docs/BENCHMARKS
 
 ## Features
 
-- 📝 **CommonMark + GitHub flavor** — tables, task lists, strikethrough, footnotes, autolinks, alerts (`> [!NOTE]`)
+- 📝 **CommonMark + GitHub flavor** — tables, task lists, strikethrough, footnotes, autolinks, alerts (`> [!NOTE]`), definition lists
 - 🖼️ **Image sizing** — `![logo](logo.png){width=50%}`
 - 📄 **Page furniture** — `--header`/`--footer` with `{title}`/`{author}`/`{date}` placeholders, page numbers
 - 🧾 **Frontmatter** — `title`, `author`, `date`, `subtitle` and arbitrary metadata
@@ -107,7 +107,9 @@ md2pdf notes.md                                   # notes.pdf
 md2pdf report.md -o out/report.pdf --theme book --paper letter
 md2pdf handbook.md --toc --title "Engineering Handbook"
 md2pdf spec.md --format typst -o spec.typ         # emit Typst source
-md2pdf validate docs/*.md                         # CI linting
+md2pdf spec.md -o spec.html                       # standalone HTML page
+curl -s https://example.com/doc.md | md2pdf - -o doc.pdf   # pipe via stdin
+md2pdf validate --strict docs/*.md                # CI linting
 ```
 
 ## Use in CI
