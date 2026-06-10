@@ -167,6 +167,47 @@ mod tests {
     }
 
     #[test]
+    fn image_width_attribute_is_parsed() {
+        let doc = parser::parse("![logo](logo.png){width=50%} tail text\n");
+        let Some(Block::Paragraph(inlines)) = doc.blocks.first() else {
+            panic!("expected paragraph");
+        };
+        assert!(matches!(
+            &inlines[0],
+            Inline::Image { width: Some(w), .. } if w == "50%"
+        ));
+        // The attribute block is consumed; the rest of the text survives.
+        assert!(matches!(&inlines[1], Inline::Text(t) if t.contains("tail text")));
+    }
+
+    #[test]
+    fn image_width_attribute_rejects_garbage() {
+        let doc = parser::parse("![logo](logo.png){width=50%;rm -rf}\n");
+        let Some(Block::Paragraph(inlines)) = doc.blocks.first() else {
+            panic!("expected paragraph");
+        };
+        // Unparseable attr blocks are left as literal text, width stays None.
+        assert!(matches!(&inlines[0], Inline::Image { width: None, .. }));
+    }
+
+    #[test]
+    fn github_alert_becomes_admonition() {
+        let md = "> [!WARNING]\n> Mind the gap.\n";
+        let doc = parser::parse(md);
+        assert!(matches!(
+            doc.blocks.first(),
+            Some(Block::Admonition {
+                kind: crate::ir::AdmonitionKind::Warning,
+                ..
+            })
+        ));
+        let out = convert(md, &opts("."), OutputFormat::Typst).unwrap();
+        let src = String::from_utf8(out.bytes).unwrap();
+        assert!(src.contains("Warning"), "default title: {src}");
+        assert!(src.contains("#block"), "callout box: {src}");
+    }
+
+    #[test]
     fn typst_source_render_is_deterministic() {
         let md = "# Title\n\nHello **world**.";
         let a = convert(md, &opts("."), OutputFormat::Typst).unwrap();

@@ -128,14 +128,18 @@ impl From<ThemeArg> for Theme {
 #[derive(ValueEnum, Debug, Clone, Copy)]
 pub enum PaperArg {
     A4,
+    A5,
     Letter,
+    Legal,
 }
 
 impl From<PaperArg> for Paper {
     fn from(value: PaperArg) -> Self {
         match value {
             PaperArg::A4 => Paper::A4,
+            PaperArg::A5 => Paper::A5,
             PaperArg::Letter => Paper::Letter,
+            PaperArg::Legal => Paper::Legal,
         }
     }
 }

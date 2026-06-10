@@ -415,6 +415,41 @@ fn convert_config_invalid_path() {
         .stderr(predicate::str::contains("could not read config"));
 }
 
+#[test]
+fn convert_image_width_lowered() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.typ");
+    // Typst-source output only stats the file, so the content is irrelevant.
+    std::fs::write(dir.path().join("logo.png"), b"png-bytes").unwrap();
+    std::fs::write(&input, "# Doc\n\n![logo](logo.png){width=40%}\n").unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(
+        content.contains("width: 40%"),
+        "image width must reach the Typst source: {content}"
+    );
+}
+
+#[test]
+fn convert_admonition_renders_pdf() {
+    let dir = TempDir::new().unwrap();
+    let input = dir.path().join("doc.md");
+    let out = dir.path().join("out.pdf");
+    std::fs::write(
+        &input,
+        "# Doc\n\n> [!TIP]\n> Use `--toc` for long documents.\n",
+    )
+    .unwrap();
+
+    cmd().arg(&input).arg("-o").arg(&out).assert().success();
+
+    let magic = std::fs::read(&out).unwrap();
+    assert_eq!(&magic[..5], b"%PDF-");
+}
+
 // ---------------------------------------------------------------------------
 // validate
 // ---------------------------------------------------------------------------
