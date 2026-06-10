@@ -14,7 +14,10 @@ use crate::security::SecurityPolicy;
 use crate::theme::Theme;
 
 /// Output formats md2pdf can emit.
+///
+/// `#[non_exhaustive]`: new formats are additive and must not be breaking.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum OutputFormat {
     Pdf,
     /// The generated Typst source (useful for debugging and as a power-user
@@ -48,7 +51,10 @@ impl OutputFormat {
 }
 
 /// Paper sizes.
+///
+/// `#[non_exhaustive]`: new sizes are additive and must not be breaking.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Paper {
     A4,
     A5,

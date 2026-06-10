@@ -18,6 +18,12 @@ All notable changes to this project are documented here. The format is based on
 - CI: `cargo-deny` license/source policy and a `cargo-semver-checks` API guard
   against the latest release.
 
+### Changed
+- **Breaking**: `OutputFormat`, `Paper` and `Theme` are now `#[non_exhaustive]`,
+  so future formats/sizes/themes are additive. Version bumped to 0.4.0
+  (`OutputFormat::Docx` was itself a breaking addition, caught by the new
+  semver gate).
+
 ## [0.3.0] - 2026-06-10
 
 ### Added

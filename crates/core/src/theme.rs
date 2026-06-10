@@ -10,7 +10,10 @@ use std::path::Path;
 use serde::Deserialize;
 
 /// A visual theme: one of the built-ins, or a custom spec loaded from TOML.
+///
+/// `#[non_exhaustive]`: new built-in themes are additive and must not be breaking.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum Theme {
     Default,
     Book,
