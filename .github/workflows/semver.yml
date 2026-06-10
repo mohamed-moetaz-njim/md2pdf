@@ -1,0 +1,32 @@
+name: semver
+
+# Guard the md2pdf-core public API: breaking changes must come with a
+# matching semver bump, measured against the latest released v* tag.
+on:
+  pull_request:
+    paths:
+      - "crates/core/**"
+      - "Cargo.toml"
+      - ".github/workflows/semver.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  semver-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the baseline is resolved from tags
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-semver-checks
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-semver-checks
+      - name: Check md2pdf-core against the latest release
+        run: |
+          baseline="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
+          echo "baseline: $baseline"
+          cargo semver-checks --package md2pdf-core --baseline-rev "$baseline"
