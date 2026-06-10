@@ -17,6 +17,7 @@ fn main() -> Result<()> {
         Some(Command::Doctor) => commands::doctor::run(),
         Some(Command::Init { dir }) => commands::init::run(&dir),
         Some(Command::Theme(ThemeCommand::List)) => commands::theme::list(),
+        Some(Command::Theme(ThemeCommand::Create { name })) => commands::theme::create(&name),
         None => {
             if cli.convert.input.is_some() {
                 commands::convert::run(cli.convert)

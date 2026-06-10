@@ -21,7 +21,7 @@ pub use config::Config;
 pub use ir::Document;
 pub use render::{Diagnostic, Layout, OutputFormat, Paper, RenderOptions, Rendered, Renderer};
 pub use security::SecurityPolicy;
-pub use theme::Theme;
+pub use theme::{Theme, ThemeSpec};
 
 /// The pinned Typst engine version, surfaced by `md2pdf doctor`.
 pub const ENGINE_VERSION: &str = "typst 0.14.2";

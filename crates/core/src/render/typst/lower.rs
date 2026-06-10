@@ -77,7 +77,8 @@ fn preamble(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOptio
     let _ = writeln!(
         s,
         "#set text(font: \"{}\", size: {}pt, lang: \"en\")",
-        spec.body_font, spec.body_size_pt
+        esc(&spec.body_font),
+        spec.body_size_pt
     );
     let _ = writeln!(
         s,
@@ -98,9 +99,9 @@ fn preamble(s: &mut String, doc: &Document, spec: &ThemeSpec, opts: &RenderOptio
     let _ = writeln!(
         s,
         "#show raw: set text(font: \"{}\", size: 9.5pt)",
-        spec.mono_font
+        esc(&spec.mono_font)
     );
-    match spec.code_stroke {
+    match &spec.code_stroke {
         Some(stroke) => {
             let _ = writeln!(
                 s,

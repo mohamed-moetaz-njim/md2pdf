@@ -4,7 +4,6 @@ use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use md2pdf_core::render::{OutputFormat, Paper};
-use md2pdf_core::theme::Theme;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -54,6 +53,11 @@ pub enum Command {
 pub enum ThemeCommand {
     /// List the available built-in themes.
     List,
+    /// Write a starter custom theme file (<NAME>.toml).
+    Create {
+        /// Theme name; the file is written as <NAME>.toml.
+        name: String,
+    },
 }
 
 #[derive(Args, Debug, Clone)]
@@ -69,9 +73,9 @@ pub struct ConvertArgs {
     #[arg(long, value_enum)]
     pub format: Option<FormatArg>,
 
-    /// Visual theme (default: "default").
-    #[arg(long, value_enum)]
-    pub theme: Option<ThemeArg>,
+    /// Visual theme: "default", "book", or a path to a custom .toml theme.
+    #[arg(long)]
+    pub theme: Option<String>,
 
     /// Paper size (default: "a4").
     #[arg(long, value_enum)]
@@ -108,21 +112,6 @@ pub struct ConvertArgs {
     /// Path to an md2pdf.toml config file.
     #[arg(long)]
     pub config: Option<PathBuf>,
-}
-
-#[derive(ValueEnum, Debug, Clone, Copy)]
-pub enum ThemeArg {
-    Default,
-    Book,
-}
-
-impl From<ThemeArg> for Theme {
-    fn from(value: ThemeArg) -> Self {
-        match value {
-            ThemeArg::Default => Theme::Default,
-            ThemeArg::Book => Theme::Book,
-        }
-    }
 }
 
 #[derive(ValueEnum, Debug, Clone, Copy)]

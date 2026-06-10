@@ -8,6 +8,25 @@ use md2pdf_core::{Config, Paper, RenderOptions, SecurityPolicy, Theme};
 
 use crate::args::ConvertArgs;
 
+/// Resolve a theme argument: a built-in name, or a path to a .toml theme
+/// (tried as given, then relative to the document root).
+fn resolve_theme(name: &str, root: &Path) -> Result<md2pdf_core::Theme> {
+    use md2pdf_core::Theme;
+    if let Some(t) = Theme::from_name(name) {
+        return Ok(t);
+    }
+    if name.ends_with(".toml") {
+        let direct = Path::new(name);
+        let path = if direct.exists() {
+            direct.to_path_buf()
+        } else {
+            root.join(name)
+        };
+        return Theme::load(&path);
+    }
+    anyhow::bail!("unknown theme: {name} (built-ins: default, book; or a .toml file)")
+}
+
 pub fn run(args: ConvertArgs) -> Result<()> {
     let input = args
         .input
@@ -41,9 +60,21 @@ pub fn run(args: ConvertArgs) -> Result<()> {
         });
     }
 
+    // Custom (.toml) themes named in the config are resolved here, since
+    // resolution needs the document root and may fail.
+    if let Some(name) = config
+        .as_ref()
+        .and_then(|c| c.document.as_ref())
+        .and_then(|d| d.theme.as_deref())
+    {
+        if Theme::from_name(name).is_none() && name.ends_with(".toml") {
+            opts.theme = resolve_theme(name, &root)?;
+        }
+    }
+
     // Layer 3: CLI flags (highest priority).
-    if let Some(theme) = args.theme {
-        opts.theme = theme.into();
+    if let Some(theme) = &args.theme {
+        opts.theme = resolve_theme(theme, &root)?;
     }
     if let Some(paper) = args.paper {
         opts.paper = paper.into();
